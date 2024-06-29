@@ -18,9 +18,13 @@ func CreateProductController(db *sql.DB) ProductControllerInterface {
 	return &ProductController{Db: db}
 }
 
+func AddRequestHeader(c *gin.Context) {
+	c.Header("Content-Type", "application/json")
+}
+
 // GetAll implements ProductControllerInterface
 func (m *ProductController) GetAll(c *gin.Context) {
-	c.Header("Content-Type", "application/json")
+	AddRequestHeader(c)
 	DB := m.Db
 	repository := repository.NewProductRepository(DB)
 	page, err := strconv.Atoi(c.Query("page"));
@@ -47,7 +51,7 @@ func (m *ProductController) GetAll(c *gin.Context) {
 
 // GetSingle implements ProductControllerInterface
 func (m *ProductController) GetSingle(c *gin.Context) {
-	c.Header("Content-Type", "application/json")
+	AddRequestHeader(c)
 	DB := m.Db
 
 	var uri model.ProductUri
@@ -73,7 +77,7 @@ func (m *ProductController) GetSingle(c *gin.Context) {
 
 // Create implements ProductControllerInterface
 func (m *ProductController) Create(c *gin.Context) {
-	c.Header("Content-Type", "application/json")
+	AddRequestHeader(c)
 	DB := m.Db
 	var post model.ValidateProduct
 	if err := c.ShouldBind(&post); err != nil {
@@ -99,7 +103,7 @@ func (m *ProductController) Create(c *gin.Context) {
 
 // Update implements ProductControllerInterface
 func (m *ProductController) Update(c *gin.Context) {
-	c.Header("Content-Type", "application/json")
+	AddRequestHeader(c)
 	DB := m.Db
 	var product model.ValidateProduct
 
@@ -131,6 +135,7 @@ func (m *ProductController) Update(c *gin.Context) {
 
 //change a specific product price
 func (m *ProductController) UpdatePrice(c *gin.Context){
+	AddRequestHeader(c)
     var uri model.ProductUri
 	if err := c.ShouldBindUri(&uri); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
@@ -166,10 +171,8 @@ func (m *ProductController) UpdatePrice(c *gin.Context){
 
 	if (res.Id > 0) {
 		c.JSON(http.StatusOK, gin.H{"status": "success", "data": res, "msg": nil})
-		return
 	} else {
 		c.JSON(http.StatusInternalServerError, gin.H{"status": "failed", "data": nil, "msg": "update product failed"})
-		return
 	}
 }
 
@@ -177,7 +180,7 @@ func (m *ProductController) UpdatePrice(c *gin.Context){
 
 // Delete implements ProductControllerInterface
 func (m *ProductController) Delete(c *gin.Context) {
-	c.Header("Content-Type", "application/json")
+	AddRequestHeader(c)
 	DB := m.Db
 	var uri model.ProductUri
 	if err := c.ShouldBindUri(&uri); err != nil {

@@ -34,22 +34,14 @@ func (m *ProductRepository) GetAll(page int)([]model.Product, error) {
     defer query.Close()
 	
 	var products []model.Product
+	var product model.Product
 	if query != nil {
 		for query.Next() {
-			var (
-				id		uint
-				name	string
-				description	string
-				image	string
-				price	float64
-				sku		string
-			)
-			err := query.Scan(&id, &name, &description, &image, &price, &sku)
+			err := query.Scan(&product.Id, &product.Name, &product.Description, &product.Image, &product.Price, &product.Sku)
 			if err != nil {
 				log.Fatal(err)
 				return nil, err
 			}
-			product := model.Product{Id: id, Name: name, Description: description, Image: image, Price: price, Sku: sku}
 			products = append(products, product)
 		}
 	}
@@ -58,7 +50,9 @@ func (m *ProductRepository) GetAll(page int)([]model.Product, error) {
 
 // Get a single item by id
 func (m *ProductRepository) GetSingle(id uint) (model.Product, error) {
-	query, err := m.Db.Query("SELECT id, name, description, image, price, sku FROM products WHERE id = $1", id)
+	//query, err := m.Db.Query("SELECT id, name, description, image, price, sku FROM products WHERE id = $1", id)
+	SQL := `SELECT * FROM get_product($1)`
+	query, err := m.Db.Query(SQL, id)
 	if err != nil {
 		log.Fatal(err)
 		return model.Product{}, err
@@ -66,20 +60,11 @@ func (m *ProductRepository) GetSingle(id uint) (model.Product, error) {
 	var product model.Product
 	if query != nil {
 		for query.Next() {
-			var (
-				id      uint
-				name	string
-				description	string
-				image	string
-				price	float64
-				sku		string
-			)
-			err := query.Scan(&id, &name, &description, &image, &price, &sku)
+			err := query.Scan(&product.Id, &product.Name, &product.Description, &product.Image, &product.Price, &product.Sku)
 			if err != nil {
 				log.Fatal(err)
 				return model.Product{}, err
 			}
-			product = model.Product{Id: id, Name: name, Description: description, Image: image, Price: price, Sku: sku}
 		}
 	}
 	return product, nil
@@ -109,7 +94,7 @@ func (m *ProductRepository) Create(post model.ValidateProduct) (int, error) {
 
 // Update product item
 func (m *ProductRepository) Update(id uint, post model.ValidateProduct) (model.Product, error) {
-	_, err := m.Db.Exec("UPDATE products SET name = $1, description = $2, price = $3, image = $4, sku = $5 WHERE id = $6", post.Name, post.Description, post.Price, post.Image, post.Sku, id)
+	_, err := m.Db.Exec("CALL products_update($1, $2, $3, $4, $5, $6)", id, post.Name, post.Description, post.Price, post.Image, post.Sku)
 	if err != nil {
 		log.Fatal(err)
 		return model.Product{}, err
@@ -119,7 +104,7 @@ func (m *ProductRepository) Update(id uint, post model.ValidateProduct) (model.P
 
 // Update product item price
 func (m *ProductRepository) UpdatePrice(id uint, post model.ValidateProductPrice) (model.Product, error) {
-	_, err := m.Db.Exec("UPDATE products SET price = $1 WHERE id = $2", post.Price, id)
+	_, err := m.Db.Exec("CALL products_update_price($1, $2)", id, post.Price)
 	if err != nil {
 		log.Fatal(err)
 		return model.Product{}, err
