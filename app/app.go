@@ -34,6 +34,7 @@ func (app *App) Routes() {
 	r.GET(baseUrl, controller.GetAll)
 	r.GET(fmt.Sprintf("%s/:id", baseUrl), controller.GetSingle)
 	r.PUT(fmt.Sprintf("%s/:id", baseUrl), controller.Update)
+	r.PATCH(fmt.Sprintf("%s/:id", baseUrl), controller.UpdatePrice)
 	r.DELETE(fmt.Sprintf("%s/:id", baseUrl), controller.Delete)
 	app.Router = r
 }

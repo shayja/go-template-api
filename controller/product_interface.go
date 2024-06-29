@@ -7,5 +7,6 @@ type ProductControllerInterface interface {
 	GetSingle(*gin.Context)
 	Create(*gin.Context)
 	Update(*gin.Context)
+	UpdatePrice(c *gin.Context)
 	Delete(*gin.Context)
 }

@@ -26,3 +26,7 @@ type ValidateProduct struct {
 type ProductUri struct {
 	ID uint `uri:"id" binding:"required,number"`
 }
+
+type ValidateProductPrice struct {
+	Price       float64	`json:"price" validate:"required"`
+}

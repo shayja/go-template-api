@@ -57,11 +57,11 @@ func (m *ProductRepository) GetAll(page int)([]model.Product, error) {
 }
 
 // Get a single item by id
-func (m *ProductRepository) GetSingle(id uint) (*model.Product, error) {
+func (m *ProductRepository) GetSingle(id uint) (model.Product, error) {
 	query, err := m.Db.Query("SELECT id, name, description, image, price, sku FROM products WHERE id = $1", id)
 	if err != nil {
 		log.Fatal(err)
-		return nil, err
+		return model.Product{}, err
 	}
 	var product model.Product
 	if query != nil {
@@ -77,12 +77,12 @@ func (m *ProductRepository) GetSingle(id uint) (*model.Product, error) {
 			err := query.Scan(&id, &name, &description, &image, &price, &sku)
 			if err != nil {
 				log.Fatal(err)
-				return nil, err
+				return model.Product{}, err
 			}
 			product = model.Product{Id: id, Name: name, Description: description, Image: image, Price: price, Sku: sku}
 		}
 	}
-	return &product, nil
+	return product, nil
 }
 
 // Create implements ProductRepositoryInterface
@@ -108,14 +108,25 @@ func (m *ProductRepository) Create(post model.ValidateProduct) (int, error) {
 }
 
 // Update product item
-func (m *ProductRepository) Update(id uint, post model.ValidateProduct) (*model.Product, error) {
+func (m *ProductRepository) Update(id uint, post model.ValidateProduct) (model.Product, error) {
 	_, err := m.Db.Exec("UPDATE products SET name = $1, description = $2, price = $3, image = $4, sku = $5 WHERE id = $6", post.Name, post.Description, post.Price, post.Image, post.Sku, id)
 	if err != nil {
 		log.Fatal(err)
-		return nil, err
+		return model.Product{}, err
 	}
 	return m.GetSingle(id)
 }
+
+// Update product item price
+func (m *ProductRepository) UpdatePrice(id uint, post model.ValidateProductPrice) (model.Product, error) {
+	_, err := m.Db.Exec("UPDATE products SET price = $1 WHERE id = $2", post.Price, id)
+	if err != nil {
+		log.Fatal(err)
+		return model.Product{}, err
+	}
+	return m.GetSingle(id)
+}
+
 
 // Delete product by id
 func (m *ProductRepository) Delete(id uint) bool {
