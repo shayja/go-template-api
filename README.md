@@ -61,6 +61,15 @@ curl --location --request PUT 'http://localhost:8080/api/v1/product/2' \
 --header 'Content-Type: application/json' \
 --data '{"name": "Samsung Galaxy S22","description": "The latest phone from Samsung", "image": "samsung.png","price": 88.99, "sku": "XXYYZZ2233"}'
 
+PATCH
+/api/v1/product/:id
+
+Update product price by id
+
+curl --location --request PATCH 'http://localhost:8080/api/v1/product/2' \
+--header 'Content-Type: application/json' \
+--data '{"price": 1189.99}'
+
 DELETE
 /api/v1/product/:id
 
