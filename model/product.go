@@ -1,12 +1,17 @@
 package model
 
+import (
+	"time"
+)
+
 type Product struct {
-	Id 			uint `json:"id"`
+	Id 			int64 `json:"id"`
 	Name        string	`json:"name" validate:"required"`
 	Description string	`json:"description" validate:"required"`
 	Image       string	`json:"image" validate:"required"`
 	Price       float64	`json:"price" validate:"required"`
 	Sku         string	`json:"sku" validate:"required"`
+	CreateDate  time.Time `json:"create_date"`
 }
 
 // ValidateProduct represents a product in the shopping list.
@@ -24,7 +29,7 @@ type ValidateProduct struct {
 }
 
 type ProductUri struct {
-	ID uint `uri:"id" binding:"required,number"`
+	ID int64 `uri:"id" binding:"required,number"`
 }
 
 type ValidateProductPrice struct {

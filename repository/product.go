@@ -3,6 +3,7 @@ package repository
 import (
 	"database/sql"
 	"log"
+	"time"
 
 	"github.com/shayja/go-template-api/model"
 )
@@ -49,7 +50,7 @@ func (m *ProductRepository) GetAll(page int)([]model.Product, error) {
 }
 
 // Get a single item by id
-func (m *ProductRepository) GetSingle(id uint) (model.Product, error) {
+func (m *ProductRepository) GetSingle(id int64) (model.Product, error) {
 	//query, err := m.Db.Query("SELECT id, name, description, image, price, sku FROM products WHERE id = $1", id)
 	SQL := `SELECT * FROM get_product($1)`
 	query, err := m.Db.Query(SQL, id)
@@ -60,7 +61,7 @@ func (m *ProductRepository) GetSingle(id uint) (model.Product, error) {
 	var product model.Product
 	if query != nil {
 		for query.Next() {
-			err := query.Scan(&product.Id, &product.Name, &product.Description, &product.Image, &product.Price, &product.Sku)
+			err := query.Scan(&product.Id, &product.Name, &product.Description, &product.Image, &product.Price, &product.Sku, &product.CreateDate)
 			if err != nil {
 				log.Fatal(err)
 				return model.Product{}, err
@@ -71,39 +72,35 @@ func (m *ProductRepository) GetSingle(id uint) (model.Product, error) {
 }
 
 // Create implements ProductRepositoryInterface
-func (m *ProductRepository) Create(post model.ValidateProduct) (int, error) {
-	stmt, err := m.Db.Prepare(
-		`INSERT INTO products (name, description, image, price, sku)
-		 VALUES ($1,$2,$3,$4,$5) 
-		 RETURNING id;`)
-	if err != nil {
-		log.Fatal(err)
-		return -1, err
-	}
-	defer stmt.Close()
-	var id int
-	err = stmt.QueryRow(post.Name, post.Description, post.Image, post.Price, post.Sku).Scan(&id)
+func (m *ProductRepository) Create(post model.ValidateProduct) (int64, error) {
+	
+	var newId int64 = 0
+	err := m.Db.QueryRow("CALL products_insert($1, $2, $3, $4, $5, $6, $7)", post.Name, post.Description, post.Price, post.Image, post.Sku, time.Now(), newId).Scan(&newId)
 	if err != nil {
 		log.Fatal(err)
 		return -1, err
 	}
 
+	log.Printf("Product %s created successfully (new id is %d)\n", post.Name, newId)
+
 	// return the id of the new row
-	return id, nil
+	return newId, nil
 }
 
 // Update product item
-func (m *ProductRepository) Update(id uint, post model.ValidateProduct) (model.Product, error) {
+func (m *ProductRepository) Update(id int64, post model.ValidateProduct) (model.Product, error) {
+
 	_, err := m.Db.Exec("CALL products_update($1, $2, $3, $4, $5, $6)", id, post.Name, post.Description, post.Price, post.Image, post.Sku)
 	if err != nil {
 		log.Fatal(err)
 		return model.Product{}, err
 	}
+
 	return m.GetSingle(id)
 }
 
 // Update product item price
-func (m *ProductRepository) UpdatePrice(id uint, post model.ValidateProductPrice) (model.Product, error) {
+func (m *ProductRepository) UpdatePrice(id int64, post model.ValidateProductPrice) (model.Product, error) {
 	_, err := m.Db.Exec("CALL products_update_price($1, $2)", id, post.Price)
 	if err != nil {
 		log.Fatal(err)
@@ -114,7 +111,7 @@ func (m *ProductRepository) UpdatePrice(id uint, post model.ValidateProductPrice
 
 
 // Delete product by id
-func (m *ProductRepository) Delete(id uint) bool {
+func (m *ProductRepository) Delete(id int64) bool {
 	_, err := m.Db.Exec("DELETE FROM products WHERE id = $1", id)
 	if err != nil {
 		log.Fatal(err)

@@ -2,6 +2,7 @@ package controller
 
 import (
 	"database/sql"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -106,11 +107,14 @@ func (m *ProductController) Update(c *gin.Context) {
 	AddRequestHeader(c)
 	DB := m.Db
 	var product model.ValidateProduct
+	
 
 	if err := c.ShouldBind(&product); err != nil {
+		log.Fatal(err)
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		return
 	}
+   
 	var uri model.ProductUri
 	if err := c.ShouldBindUri(&uri); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
