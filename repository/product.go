@@ -38,7 +38,7 @@ func (m *ProductRepository) GetAll(page int)([]model.Product, error) {
 	var product model.Product
 	if query != nil {
 		for query.Next() {
-			err := query.Scan(&product.Id, &product.Name, &product.Description, &product.Image, &product.Price, &product.Sku)
+			err := query.Scan(&product.Id, &product.Name, &product.Description, &product.Image, &product.Price, &product.Sku, &product.CreateDate)
 			if err != nil {
 				log.Fatal(err)
 				return nil, err
