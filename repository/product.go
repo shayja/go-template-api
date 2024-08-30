@@ -50,7 +50,7 @@ func (m *ProductRepository) GetAll(page int)([]model.Product, error) {
 }
 
 // Get a single item by id
-func (m *ProductRepository) GetSingle(id int64) (model.Product, error) {
+func (m *ProductRepository) GetSingle(id string) (model.Product, error) {
 	//query, err := m.Db.Query("SELECT id, name, description, image, price, sku FROM products WHERE id = $1", id)
 	SQL := `SELECT * FROM get_product($1)`
 	query, err := m.Db.Query(SQL, id)
@@ -72,23 +72,23 @@ func (m *ProductRepository) GetSingle(id int64) (model.Product, error) {
 }
 
 // Create implements ProductRepositoryInterface
-func (m *ProductRepository) Create(post model.ValidateProduct) (int64, error) {
+func (m *ProductRepository) Create(post model.ValidateProduct) (string, error) {
 	
-	var newId int64 = 0
+	var newId string = ""
 	err := m.Db.QueryRow("CALL products_insert($1, $2, $3, $4, $5, $6, $7)", post.Name, post.Description, post.Price, post.Image, post.Sku, time.Now(), newId).Scan(&newId)
 	if err != nil {
 		log.Fatal(err)
-		return -1, err
+		return newId, err
 	}
 
-	log.Printf("Product %s created successfully (new id is %d)\n", post.Name, newId)
+	log.Printf("Product %s created successfully (new id is %s)\n", post.Name, newId)
 
 	// return the id of the new row
 	return newId, nil
 }
 
 // Update product item
-func (m *ProductRepository) Update(id int64, post model.ValidateProduct) (model.Product, error) {
+func (m *ProductRepository) Update(id string, post model.ValidateProduct) (model.Product, error) {
 
 	_, err := m.Db.Exec("CALL products_update($1, $2, $3, $4, $5, $6)", id, post.Name, post.Description, post.Price, post.Image, post.Sku)
 	if err != nil {
@@ -100,7 +100,7 @@ func (m *ProductRepository) Update(id int64, post model.ValidateProduct) (model.
 }
 
 // Update product item price
-func (m *ProductRepository) UpdatePrice(id int64, post model.ValidateProductPrice) (model.Product, error) {
+func (m *ProductRepository) UpdatePrice(id string, post model.ValidateProductPrice) (model.Product, error) {
 	_, err := m.Db.Exec("CALL products_update_price($1, $2)", id, post.Price)
 	if err != nil {
 		log.Fatal(err)
@@ -111,7 +111,7 @@ func (m *ProductRepository) UpdatePrice(id int64, post model.ValidateProductPric
 
 
 // Delete product by id
-func (m *ProductRepository) Delete(id int64) bool {
+func (m *ProductRepository) Delete(id string) bool {
 	_, err := m.Db.Exec("DELETE FROM products WHERE id = $1", id)
 	if err != nil {
 		log.Fatal(err)

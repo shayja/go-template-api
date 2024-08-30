@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/shayja/go-template-api/model"
 	"github.com/shayja/go-template-api/repository"
+	"github.com/shayja/go-template-api/repository/utils"
 )
 
 type ProductController struct {
@@ -61,18 +62,17 @@ func (m *ProductController) GetSingle(c *gin.Context) {
 		return
 	}
 	repository := repository.NewProductRepository(DB)
+	
 	res, err := repository.GetSingle(uri.ID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		return
 	}
 	
-	if (res.Id > 0) {
+	if (utils.IsValidUUID(res.Id)) {
 		c.JSON(http.StatusOK, gin.H{"status": "success", "data": res, "msg": nil})
-		return
 	} else {
 		c.JSON(http.StatusNotFound, gin.H{"status": "success", "data": nil, "msg": "product not found"})
-		return
 	}
 }
 
@@ -93,12 +93,10 @@ func (m *ProductController) Create(c *gin.Context) {
 		return
 	}
 
-	if (insertedId > 0) {
+	if (utils.IsValidUUID(insertedId)) {
 		c.JSON(http.StatusCreated, gin.H{"status": "success", "msg": nil})
-		return
 	} else {
 		c.JSON(http.StatusInternalServerError, gin.H{"status": "failed", "msg": "insert product failed"})
-		return
 	}
 }
 
@@ -127,13 +125,12 @@ func (m *ProductController) Update(c *gin.Context) {
 		return
 	}
 
-	if (res.Id > 0) {
+	if (utils.IsValidUUID(res.Id))  {
 		c.JSON(http.StatusOK, gin.H{"status": "success", "data": res, "msg": nil})
-		return
 	} else {
 		c.JSON(http.StatusInternalServerError, gin.H{"status": "failed", "data": nil, "msg": "update product failed"})
-		return
 	}
+
 }
 
 
@@ -161,7 +158,7 @@ func (m *ProductController) UpdatePrice(c *gin.Context){
 	repository := repository.NewProductRepository(DB)
 	product, err := repository.GetSingle(uri.ID)
 
-    if err != nil || product.Id <=0 {
+    if err != nil || (!utils.IsValidUUID(product.Id))  {
 		 //return custom request for bad request or item not found
         c.JSON(http.StatusNotFound, gin.H{"message": "Product not found."})
         return
@@ -173,7 +170,7 @@ func (m *ProductController) UpdatePrice(c *gin.Context){
 		return
 	}
 
-	if (res.Id > 0) {
+	if (utils.IsValidUUID(res.Id))  {
 		c.JSON(http.StatusOK, gin.H{"status": "success", "data": res, "msg": nil})
 	} else {
 		c.JSON(http.StatusInternalServerError, gin.H{"status": "failed", "data": nil, "msg": "update product failed"})

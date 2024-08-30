@@ -5,7 +5,7 @@ import (
 )
 
 type Product struct {
-	Id 			int64 `json:"id"`
+	Id 			string	`json:"id" validate:"required"`
 	Name        string	`json:"name" validate:"required"`
 	Description string	`json:"description" validate:"required"`
 	Image       string	`json:"image" validate:"required"`
@@ -29,7 +29,7 @@ type ValidateProduct struct {
 }
 
 type ProductUri struct {
-	ID int64 `uri:"id" binding:"required,number"`
+	ID string `uri:"id" binding:"required"`
 }
 
 type ValidateProductPrice struct {
