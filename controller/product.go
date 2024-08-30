@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/shayja/go-template-api/model"
 	"github.com/shayja/go-template-api/repository"
 	"github.com/shayja/go-template-api/repository/utils"
@@ -193,8 +194,9 @@ func (m *ProductController) UpdateImage(c *gin.Context){
 	  c.JSON(http.StatusInternalServerError, gin.H{"status": "failed", "data": nil, "msg": "update product failed"})
 	}
 	
-	 uniqueId := utils.createNewUUID()
-	
+	 //uniqueId := utils.createNewUUID()
+	 uniqueId := uuid.New()
+
 	 filename := strings.Replace(uniqueId.String(), "-", "", -1)
 	
 	 fileExt := strings.Split(file.Filename, ".")[1]
@@ -231,11 +233,12 @@ func (m *ProductController) UpdateImage(c *gin.Context){
 	 }
  
 
-	//  res, err := repository.UpdateImage(uri.ID, image)
-	//  if err != nil {
-	// 	 c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
-	// 	 return
-	//  }
+	 res, err := repository.UpdateImage(uri.ID, image)
+	 if err != nil {
+		 c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
+		 return
+	 }
+	 log.Println("UpdateImage res :", res)
 
 
 	 c.JSON(http.StatusCreated, gin.H{"status": "success", "data": "Image uploaded successfully", "msg": data})
