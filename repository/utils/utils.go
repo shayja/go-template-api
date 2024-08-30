@@ -7,3 +7,7 @@ func IsValidUUID(u string) bool {
     return err == nil
  }
  
+ func createNewUUID() uuid.UUID {
+    return uuid.New()
+ }
+ 
