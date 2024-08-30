@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"github.com/shayja/go-template-api/model"
 	"github.com/shayja/go-template-api/repository"
 	"github.com/shayja/go-template-api/repository/utils"
@@ -136,7 +135,6 @@ func (m *ProductController) Update(c *gin.Context) {
 
 }
 
-
 //change a specific product price
 func (m *ProductController) UpdatePrice(c *gin.Context){
 	AddRequestHeader(c)
@@ -195,8 +193,7 @@ func (m *ProductController) UpdateImage(c *gin.Context){
 	  c.JSON(http.StatusInternalServerError, gin.H{"status": "failed", "data": nil, "msg": "update product failed"})
 	}
 	
-	 //uniqueId := utils.createNewUUID()
-	 uniqueId := uuid.New()
+	 uniqueId := utils.createNewUUID()
 	
 	 filename := strings.Replace(uniqueId.String(), "-", "", -1)
 	
