@@ -35,3 +35,7 @@ type ProductUri struct {
 type ValidateProductPrice struct {
 	Price       float64	`json:"price" validate:"required"`
 }
+
+type ValidateProductImage struct {
+	Image       string `json:"image" validate:"required"`
+}

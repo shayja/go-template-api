@@ -109,6 +109,15 @@ func (m *ProductRepository) UpdatePrice(id string, post model.ValidateProductPri
 	return m.GetSingle(id)
 }
 
+// Update product image
+func (m *ProductRepository) UpdateImage(id string, post model.ValidateProductImage) (model.Product, error) {
+	_, err := m.Db.Exec("CALL products_update_image($1, $2)", id, post.Image)
+	if err != nil {
+		log.Fatal(err)
+		return model.Product{}, err
+	}
+	return m.GetSingle(id)
+}
 
 // Delete product by id
 func (m *ProductRepository) Delete(id string) bool {

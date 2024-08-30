@@ -2,11 +2,14 @@ package controller
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/shayja/go-template-api/model"
 	"github.com/shayja/go-template-api/repository"
 	"github.com/shayja/go-template-api/repository/utils"
@@ -177,7 +180,69 @@ func (m *ProductController) UpdatePrice(c *gin.Context){
 	}
 }
 
+func (m *ProductController) UpdateImage(c *gin.Context){
+	AddRequestHeader(c)
+    var uri model.ProductUri
+	if err := c.ShouldBindUri(&uri); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
+		return
+	}
 
+	file, err := c.FormFile("image")
+   
+	if err != nil {
+	  log.Println("Error in uploading Image : ", err)
+	  c.JSON(http.StatusInternalServerError, gin.H{"status": "failed", "data": nil, "msg": "update product failed"})
+	}
+	
+	 //uniqueId := utils.createNewUUID()
+	 uniqueId := uuid.New()
+	
+	 filename := strings.Replace(uniqueId.String(), "-", "", -1)
+	
+	 fileExt := strings.Split(file.Filename, ".")[1]
+	
+	 imageName := fmt.Sprintf("%s.%s", filename, fileExt)
+	
+	//todo: Add file size/dimaentions and file ext. validation here.
+
+
+	// Just for the demo, Do not use this for any real world solution. 
+	// Do not store uploaded files on your web server, use AWS/GCP cloud bucket instead.
+	 err = c.SaveUploadedFile(file, fmt.Sprintf("./images/%s", imageName))
+	
+	 if err != nil {
+	  log.Println("Error in saving Image :", err)
+	  c.JSON(http.StatusInternalServerError, gin.H{"status": "failed", "msg": "Error in saving Image"})
+	 }
+	
+	 
+	 imageUrl := fmt.Sprintf("http://YOUR_DOMAIN_HERE.com/images/%s", imageName)
+	
+	 data := map[string]interface{}{
+	
+	  "imageName": imageName,
+	  "imageUrl":  imageUrl,
+	  "header":    file.Header,
+	  "size":      file.Size,
+	 }
+	
+	 var image model.ValidateProductImage
+	 if err := c.ShouldBind(&image); err != nil {
+		 c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
+		 return
+	 }
+ 
+
+	//  res, err := repository.UpdateImage(uri.ID, image)
+	//  if err != nil {
+	// 	 c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
+	// 	 return
+	//  }
+
+
+	 c.JSON(http.StatusCreated, gin.H{"status": "success", "data": "Image uploaded successfully", "msg": data})
+   }
 
 // Delete implements ProductControllerInterface
 func (m *ProductController) Delete(c *gin.Context) {
