@@ -12,7 +12,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/shayja/go-template-api/model"
 	"github.com/shayja/go-template-api/repository"
-	"github.com/shayja/go-template-api/repository/utils"
+	"github.com/shayja/go-template-api/utils"
 )
 
 type ProductController struct {
