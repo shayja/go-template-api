@@ -233,12 +233,12 @@ func (m *ProductController) UpdateImage(c *gin.Context){
 	 }
  
 
-	 res, err := repository.UpdateImage(uri.ID, image)
-	 if err != nil {
-		 c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
-		 return
-	 }
-	 log.Println("UpdateImage res :", res)
+	//  res, err := repository.UpdateImage(uri.ID, image)
+	//  if err != nil {
+	// 	 c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
+	// 	 return
+	//  }
+	//  log.Println("UpdateImage res :", res)
 
 
 	 c.JSON(http.StatusCreated, gin.H{"status": "success", "data": "Image uploaded successfully", "msg": data})
