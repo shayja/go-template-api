@@ -17,9 +17,18 @@ go run main.go
 
 Database:
 
-1. Create a new Postgres DB
-2. Exceute the sql script from project path /scripts
+1. Create a new Postgres DB, choose "shop" as database name, create a new user "appuser" and set a login password.
+2. Exceute the sql script from project path /scripts on "shop" database.
 3. Set your DB credentials in .env file.
+4. Add new .env file in project root with this content, change the password configuration value:
+
+# Database settings:
+
+DB_HOST="localhost"
+DB_USER="appuser"
+DB_PASSWORD="<YOUR_PASSWORD>"
+DB_NAME="shop"
+DB_PORT=5432
 
 App endpoints:
 
@@ -38,7 +47,7 @@ GET
 Get a product by id
 
 example:
-curl --location 'http://localhost:8080/api/v1/product/1' \
+curl --location 'http://localhost:8080/api/v1/product/3954d2d4-94cf-44f8-a237-fa905773cffd' \
 --data ''
 
 POST
@@ -57,7 +66,7 @@ PUT
 Update an existing product by id
 
 example:
-curl --location --request PUT 'http://localhost:8080/api/v1/product/2' \
+curl --location --request PUT 'http://localhost:8080/api/v1/product/3954d2d4-94cf-44f8-a237-fa905773cffd' \
 --header 'Content-Type: application/json' \
 --data '{"name": "Samsung Galaxy S22","description": "The latest phone from Samsung", "image": "samsung.png","price": 88.99, "sku": "XXYYZZ2233"}'
 
@@ -66,7 +75,7 @@ PATCH
 
 Update product price by id
 
-curl --location --request PATCH 'http://localhost:8080/api/v1/product/2' \
+curl --location --request PATCH 'http://localhost:8080/api/v1/product/3954d2d4-94cf-44f8-a237-fa905773cffd' \
 --header 'Content-Type: application/json' \
 --data '{"price": 1189.99}'
 
