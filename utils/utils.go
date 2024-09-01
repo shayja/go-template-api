@@ -8,7 +8,7 @@ func IsValidUUID(u string) bool {
  }
  
  func createNewUUID() uuid.UUID {
-   id :=  uuid.Must(uuid.NewRandom())
+   id := uuid.Must(uuid.NewRandom())
    return id
  }
  
