@@ -244,7 +244,7 @@ func (m *ProductController) UpdateImage(c *gin.Context){
 	 c.JSON(http.StatusCreated, gin.H{"status": "success", "data": "Image uploaded successfully", "msg": data})
    }
 
-// Delete implements ProductControllerInterface
+// Delete implements ProductController Interface
 func (m *ProductController) Delete(c *gin.Context) {
 	AddRequestHeader(c)
 	DB := m.Db
