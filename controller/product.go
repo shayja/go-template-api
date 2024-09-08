@@ -96,7 +96,7 @@ func (m *ProductController) Create(c *gin.Context) {
 		return
 	}
 
-	if (utils.IsValidUUID(insertedId)) {
+	if utils.IsValidUUID(insertedId) {
 		c.JSON(http.StatusCreated, gin.H{"status": "success", "msg": nil})
 	} else {
 		c.JSON(http.StatusInternalServerError, gin.H{"status": "failed", "msg": "insert product failed"})
@@ -109,7 +109,6 @@ func (m *ProductController) Update(c *gin.Context) {
 	DB := m.Db
 	var product model.ValidateProduct
 	
-
 	if err := c.ShouldBind(&product); err != nil {
 		log.Fatal(err)
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
@@ -128,7 +127,7 @@ func (m *ProductController) Update(c *gin.Context) {
 		return
 	}
 
-	if (utils.IsValidUUID(res.Id))  {
+	if utils.IsValidUUID(res.Id) {
 		c.JSON(http.StatusOK, gin.H{"status": "success", "data": res, "msg": nil})
 	} else {
 		c.JSON(http.StatusInternalServerError, gin.H{"status": "failed", "data": nil, "msg": "update product failed"})
@@ -151,7 +150,7 @@ func (m *ProductController) UpdatePrice(c *gin.Context){
 		return
 	}
 
-	if price.Price <= 0{
+	if price.Price <= 0 {
         c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Invalid price value."}) //return custom request for bad request or book not found
         return
     }
@@ -160,7 +159,7 @@ func (m *ProductController) UpdatePrice(c *gin.Context){
 	repository := repository.NewProductRepository(DB)
 	product, err := repository.GetSingle(uri.ID)
 
-    if err != nil || (!utils.IsValidUUID(product.Id))  {
+    if err != nil || !utils.IsValidUUID(product.Id) {
 		 //return custom request for bad request or item not found
         c.JSON(http.StatusNotFound, gin.H{"message": "Product not found."})
         return
@@ -172,7 +171,7 @@ func (m *ProductController) UpdatePrice(c *gin.Context){
 		return
 	}
 
-	if (utils.IsValidUUID(res.Id))  {
+	if utils.IsValidUUID(res.Id)  {
 		c.JSON(http.StatusOK, gin.H{"status": "success", "data": res, "msg": nil})
 	} else {
 		c.JSON(http.StatusInternalServerError, gin.H{"status": "failed", "data": nil, "msg": "update product failed"})
