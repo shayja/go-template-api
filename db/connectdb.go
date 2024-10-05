@@ -29,8 +29,10 @@ func OpenDBConnection() *sql.DB {
     password := os.Getenv("DB_PASSWORD")
     dbname := os.Getenv("DB_NAME")
   
+    // Format the connecttion string to the database
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
-    //log.Println(psqlInfo)
+    
+    // Establish a connection to the PostgreSQL database
     db, err := sql.Open("postgres", psqlInfo)
     
      // checks if we are connected to db
@@ -38,7 +40,7 @@ func OpenDBConnection() *sql.DB {
         log.Fatal("Error connecting to database :", err)
         panic(err)
     }
-   
+
     fmt.Printf("The database `%s` is successfully connected!", dbname)
     return db
 }
