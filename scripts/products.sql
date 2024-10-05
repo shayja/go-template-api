@@ -24,7 +24,7 @@ GRANT appuser TO pg_read_all_data, pg_write_all_data;
 
 CREATE TABLE IF NOT EXISTS public.products
 (
-    id integer NOT NULL DEFAULT nextval('products_id_seq'::regclass),
+    id uuid primary key NOT NULL,
     name character varying(255) COLLATE pg_catalog."default",
     description character varying(255) COLLATE pg_catalog."default",
     image character varying(255) COLLATE pg_catalog."default",

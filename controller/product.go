@@ -97,7 +97,7 @@ func (m *ProductController) Create(c *gin.Context) {
 	}
 
 	if utils.IsValidUUID(insertedId) {
-		c.JSON(http.StatusCreated, gin.H{"status": "success", "msg": nil})
+		c.JSON(http.StatusCreated, gin.H{"status": "success", "msg": nil, "id": insertedId})
 	} else {
 		c.JSON(http.StatusInternalServerError, gin.H{"status": "failed", "msg": "insert product failed"})
 	}

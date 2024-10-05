@@ -5,6 +5,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/shayja/go-template-api/model"
 )
 
@@ -74,7 +75,7 @@ func (m *ProductRepository) GetSingle(id string) (model.Product, error) {
 // Create implements ProductRepositoryInterface
 func (m *ProductRepository) Create(post model.ValidateProduct) (string, error) {
 	
-	var newId string = ""
+	newId := uuid.New().String()
 	err := m.Db.QueryRow("CALL products_insert($1, $2, $3, $4, $5, $6, $7)", post.Name, post.Description, post.Price, post.Image, post.Sku, time.Now(), newId).Scan(&newId)
 	if err != nil {
 		log.Fatal(err)
