@@ -1,4 +1,27 @@
 
+CREATE DATABASE shop
+    WITH
+    OWNER = postgres
+    ENCODING = 'UTF8'
+    LOCALE_PROVIDER = 'libc'
+    CONNECTION LIMIT = -1
+    IS_TEMPLATE = False;
+
+CREATE ROLE appuser WITH
+	LOGIN
+	NOSUPERUSER
+	NOCREATEDB
+	NOCREATEROLE
+	INHERIT
+	NOREPLICATION
+	NOBYPASSRLS
+	CONNECTION LIMIT -1
+	PASSWORD 'xxxxxx';
+COMMENT ON ROLE appuser IS 'User that can exec commands/procedures';
+
+
+GRANT appuser TO pg_read_all_data, pg_write_all_data;
+
 CREATE TABLE IF NOT EXISTS public.products
 (
     id integer NOT NULL DEFAULT nextval('products_id_seq'::regclass),
