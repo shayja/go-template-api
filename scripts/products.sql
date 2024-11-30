@@ -1,30 +1,6 @@
-
-CREATE DATABASE shop
-    WITH
-    OWNER = postgres
-    ENCODING = 'UTF8'
-    LOCALE_PROVIDER = 'libc'
-    CONNECTION LIMIT = -1
-    IS_TEMPLATE = False;
-
-CREATE ROLE appuser WITH
-	LOGIN
-	NOSUPERUSER
-	NOCREATEDB
-	NOCREATEROLE
-	INHERIT
-	NOREPLICATION
-	NOBYPASSRLS
-	CONNECTION LIMIT -1
-	PASSWORD 'xxxxxx';
-COMMENT ON ROLE appuser IS 'User that can exec commands/procedures';
-
-
-GRANT appuser TO pg_read_all_data, pg_write_all_data;
-
 CREATE TABLE IF NOT EXISTS public.products
 (
-    id uuid primary key NOT NULL,
+    id uuid NOT NULL,
     name character varying(255) COLLATE pg_catalog."default",
     description character varying(255) COLLATE pg_catalog."default",
     image character varying(255) COLLATE pg_catalog."default",
@@ -32,10 +8,16 @@ CREATE TABLE IF NOT EXISTS public.products
     sku character varying(255) COLLATE pg_catalog."default",
     create_date timestamp without time zone,
     CONSTRAINT products_pkey PRIMARY KEY (id)
-)
-REVOKE ALL ON TABLE public.products FROM appuser;
-GRANT DELETE, INSERT, SELECT, UPDATE ON TABLE public.products TO appuser;
+);
 
+ALTER TABLE IF EXISTS public.products
+    OWNER to appuser;
+
+REVOKE ALL ON TABLE public.products FROM appuser;
+
+GRANT INSERT, SELECT, UPDATE, DELETE ON TABLE public.products TO appuser;
+
+GRANT ALL ON TABLE public.products TO appuser;
 
 CREATE OR REPLACE PROCEDURE public.products_insert(
 	IN p_name text,
