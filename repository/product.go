@@ -73,7 +73,7 @@ func (m *ProductRepository) GetSingle(id string) (model.Product, error) {
 }
 
 // Create implements ProductRepositoryInterface
-func (m *ProductRepository) Create(post model.ValidateProduct) (string, error) {
+func (m *ProductRepository) Create(post model.ProductRequest) (string, error) {
 	
 	newId := utils.CreateNewUUID().String()
 	err := m.Db.QueryRow("CALL products_insert($1, $2, $3, $4, $5, $6, $7)", post.Name, post.Description, post.Price, post.Image, post.Sku, time.Now(), newId).Scan(&newId)
@@ -89,7 +89,7 @@ func (m *ProductRepository) Create(post model.ValidateProduct) (string, error) {
 }
 
 // Update product item
-func (m *ProductRepository) Update(id string, post model.ValidateProduct) (model.Product, error) {
+func (m *ProductRepository) Update(id string, post model.ProductRequest) (model.Product, error) {
 
 	_, err := m.Db.Exec("CALL products_update($1, $2, $3, $4, $5, $6)", id, post.Name, post.Description, post.Price, post.Image, post.Sku)
 	if err != nil {
@@ -101,7 +101,7 @@ func (m *ProductRepository) Update(id string, post model.ValidateProduct) (model
 }
 
 // Update product item price
-func (m *ProductRepository) UpdatePrice(id string, post model.ValidateProductPrice) (model.Product, error) {
+func (m *ProductRepository) UpdatePrice(id string, post model.ProductRequestPrice) (model.Product, error) {
 	_, err := m.Db.Exec("CALL products_update_price($1, $2)", id, post.Price)
 	if err != nil {
 		log.Fatal(err)
@@ -111,7 +111,7 @@ func (m *ProductRepository) UpdatePrice(id string, post model.ValidateProductPri
 }
 
 // Update product image
-func (m *ProductRepository) UpdateImage(id string, post model.ValidateProductImage) (model.Product, error) {
+func (m *ProductRepository) UpdateImage(id string, post model.ProductRequestImage) (model.Product, error) {
 	_, err := m.Db.Exec("CALL products_update_image($1, $2)", id, post.Image)
 	if err != nil {
 		log.Fatal(err)

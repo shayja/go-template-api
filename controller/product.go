@@ -82,7 +82,7 @@ func (m *ProductController) GetSingle(c *gin.Context) {
 func (m *ProductController) Create(c *gin.Context) {
 	AddRequestHeader(c)
 	DB := m.Db
-	var post model.ValidateProduct
+	var post model.ProductRequest
 	if err := c.ShouldBind(&post); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		return
@@ -106,7 +106,7 @@ func (m *ProductController) Create(c *gin.Context) {
 func (m *ProductController) Update(c *gin.Context) {
 	AddRequestHeader(c)
 	DB := m.Db
-	var product model.ValidateProduct
+	var product model.ProductRequest
 	
 	if err := c.ShouldBind(&product); err != nil {
 		log.Fatal(err)
@@ -143,7 +143,7 @@ func (m *ProductController) UpdatePrice(c *gin.Context){
 		return
 	}
 
-	var price model.ValidateProductPrice
+	var price model.ProductRequestPrice
 	if err := c.ShouldBind(&price); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		return
@@ -223,7 +223,7 @@ func (m *ProductController) UpdateImage(c *gin.Context){
 	  "size":      file.Size,
 	 }
 	
-	 var image model.ValidateProductImage
+	 var image model.ProductRequestImage
 	 if err := c.ShouldBind(&image); err != nil {
 		 c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		 return

@@ -5,42 +5,52 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strconv"
 
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
 
-func OpenDBConnection() *sql.DB {
+type DbInfo struct {
+    Host     string
+    Port     string
+    User     string
+    Password string
+    DBName   string
+    SSLMode  string
+}
+
+func OpenDBConnection() (*sql.DB) {
 
     if err := godotenv.Load(); err != nil {
-        log.Print("No .env file found")
+        log.Fatalf("Error getting env, not comming through %v", err)
     }
     
-
-    host := os.Getenv("DB_HOST")
-    if host == "" {
-        log.Fatal("DB_HOST not set")
+    v := DbInfo{
+        Host:     os.Getenv("DB_HOST"),
+        Port:     os.Getenv("DB_PORT"),
+        User:     os.Getenv("DB_USER"),
+        Password: os.Getenv("DB_PASSWORD"),
+        DBName:   os.Getenv("DB_NAME"),
+        SSLMode:  os.Getenv("SSL_MODE"),
     }
-    log.Println("DB_HOST is set to", host)
 
-    port, _ := strconv.Atoi(os.Getenv("DB_PORT"))
-    user := os.Getenv("DB_USER")
-    password := os.Getenv("DB_PASSWORD")
-    dbname := os.Getenv("DB_NAME")
-  
-    // Format the connecttion string to the database
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+    // Format the connection string to the database
+    connectionString := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", v.Host, v.Port, v.User, v.Password, v.DBName, v.SSLMode)
     
     // Establish a connection to the PostgreSQL database
-    db, err := sql.Open("postgres", psqlInfo)
-    
-     // checks if we are connected to db
+    db, err := sql.Open("postgres", connectionString)
     if err != nil {
-        log.Fatal("Error connecting to database :", err)
+        log.Fatal("Error connecting to database:", err)
         panic(err)
     }
 
-    fmt.Printf("The database `%s` is successfully connected!", dbname)
+    // checks if we are connected to db
+    err = db.Ping()
+    if err != nil {
+        log.Fatal("Ping database error:", err)
+        panic(err)
+    }
+
+    fmt.Printf("The database `%s` is successfully connected!", v.DBName)
     return db
 }
