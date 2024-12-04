@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS products
 (
     id uuid NOT NULL,
     name character varying(255),
-    escription text,
+    description text,
     image character varying(255),
     price numeric(10,2),
     sku character varying(255),
