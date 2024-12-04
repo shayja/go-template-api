@@ -9,7 +9,7 @@ type ProductRepositoryInterface interface {
 	GetSingle(id string) (model.Product, error)
 	Create(model.ProductRequest) (string, error)
 	Update(string, model.ProductRequest) (model.Product, error)
-	UpdatePrice(id string, post model.ProductRequestPrice) (model.Product, error)
-	UpdateImage(id string, post model.ProductRequestImage) (model.Product, error) 
+	UpdatePrice(id string, post model.ProductPriceRequest) (model.Product, error)
+	UpdateImage(id string, post model.ProductImageRequest) (model.Product, error) 
 	Delete(string) bool
 }

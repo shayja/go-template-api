@@ -39,7 +39,7 @@ func (m *ProductRepository) GetAll(page int)([]model.Product, error) {
 	var product model.Product
 	if query != nil {
 		for query.Next() {
-			err := query.Scan(&product.Id, &product.Name, &product.Description, &product.Image, &product.Price, &product.Sku, &product.CreateDate)
+			err := query.Scan(&product.Id, &product.Name, &product.Description, &product.Image, &product.Price, &product.Sku, &product.UpdatedAt, &product.CreatedAt)
 			if err != nil {
 				log.Fatal(err)
 				return nil, err
@@ -62,7 +62,7 @@ func (m *ProductRepository) GetSingle(id string) (model.Product, error) {
 	var product model.Product
 	if query != nil {
 		for query.Next() {
-			err := query.Scan(&product.Id, &product.Name, &product.Description, &product.Image, &product.Price, &product.Sku, &product.CreateDate)
+			err := query.Scan(&product.Id, &product.Name, &product.Description, &product.Image, &product.Price, &product.Sku, &product.UpdatedAt, &product.CreatedAt)
 			if err != nil {
 				log.Fatal(err)
 				return model.Product{}, err
@@ -101,17 +101,18 @@ func (m *ProductRepository) Update(id string, post model.ProductRequest) (model.
 }
 
 // Update product item price
-func (m *ProductRepository) UpdatePrice(id string, post model.ProductRequestPrice) (model.Product, error) {
-	_, err := m.Db.Exec("CALL products_update_price($1, $2)", id, post.Price)
+func (m *ProductRepository) UpdatePrice(id string, post model.ProductPriceRequest) (model.Product, error) {
+	
+	res, err := m.Db.Exec("CALL products_update_price($1, $2)", id, post.Price)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(err, res)
 		return model.Product{}, err
 	}
 	return m.GetSingle(id)
 }
 
 // Update product image
-func (m *ProductRepository) UpdateImage(id string, post model.ProductRequestImage) (model.Product, error) {
+func (m *ProductRepository) UpdateImage(id string, post model.ProductImageRequest) (model.Product, error) {
 	_, err := m.Db.Exec("CALL products_update_image($1, $2)", id, post.Image)
 	if err != nil {
 		log.Fatal(err)

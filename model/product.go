@@ -12,7 +12,8 @@ type Product struct {
 	Image       string	`json:"image" validate:"required"`
 	Price       float64	`json:"price" validate:"required"`
 	Sku         string	`json:"sku" validate:"required"`
-	CreateDate  time.Time `json:"create_date"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 /*
@@ -37,10 +38,10 @@ type ProductUri struct {
 	ID string `uri:"id" binding:"required"`
 }
 
-type ProductRequestPrice struct {
+type ProductPriceRequest struct {
 	Price       float64	`json:"price" validate:"required"`
 }
 
-type ProductRequestImage struct {
+type ProductImageRequest struct {
 	Image       string `json:"image" validate:"required"`
 }

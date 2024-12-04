@@ -143,7 +143,7 @@ func (m *ProductController) UpdatePrice(c *gin.Context){
 		return
 	}
 
-	var price model.ProductRequestPrice
+	var price model.ProductPriceRequest
 	if err := c.ShouldBind(&price); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		return
@@ -223,7 +223,7 @@ func (m *ProductController) UpdateImage(c *gin.Context){
 	  "size":      file.Size,
 	 }
 	
-	 var image model.ProductRequestImage
+	 var image model.ProductImageRequest
 	 if err := c.ShouldBind(&image); err != nil {
 		 c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		 return
