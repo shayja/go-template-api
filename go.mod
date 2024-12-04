@@ -1,6 +1,6 @@
 module github.com/shayja/go-template-api
 
-go 1.23.3
+go 1.23.4
 
 require (
 	github.com/gin-gonic/gin v1.10.0
