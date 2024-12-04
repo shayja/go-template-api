@@ -19,7 +19,7 @@ Database:
 
 1. Create a new Postgres DB, choose "shop" as database name, create a new user "appuser" and set a login password.
 2. Exceute the sql script from project path /scripts on "shop" database.
-3. Set your DB credentials in .env file.
+3. Set your DB credentials in .env.local file and rename the file to '.env'.
 4. Add new .env file in project root with this content, change the password configuration value:
 
 # Database settings:
@@ -29,6 +29,10 @@ DB_USER="appuser"
 DB_PASSWORD="<YOUR_PASSWORD>"
 DB_NAME="shop"
 DB_PORT=5432
+
+configure the Postgres admin user credentials:
+PGADMIN_DEFAULT_EMAIL="your@admmin.email.here"
+PGADMIN_DEFAULT_PASSWORD="<<PGADMIN_ADMIN_PASSWORD>>"
 
 App endpoints:
 

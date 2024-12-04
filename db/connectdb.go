@@ -51,6 +51,6 @@ func OpenDBConnection() (*sql.DB) {
         panic(err)
     }
 
-    fmt.Printf("The database `%s` is successfully connected!", v.DBName)
+    fmt.Printf("Successfully connected to the database `%s`", v.DBName)
     return db
 }

@@ -10,7 +10,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/shayja/go-template-api/model"
-	"github.com/shayja/go-template-api/repository"
+	repository "github.com/shayja/go-template-api/repository/product"
 	"github.com/shayja/go-template-api/utils"
 )
 

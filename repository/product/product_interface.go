@@ -6,7 +6,7 @@ import (
 
 type ProductRepositoryInterface interface {
 	GetAll(page int)([]model.Product, error)
-	GetSingle(string) (model.Product, error)
+	GetSingle(id string) (model.Product, error)
 	Create(model.ProductRequest) (string, error)
 	Update(string, model.ProductRequest) (model.Product, error)
 	UpdatePrice(id string, post model.ProductRequestPrice) (model.Product, error)
