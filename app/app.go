@@ -30,18 +30,22 @@ func (app *App) Routes() {
 	fmt.Println(gin.Version)
 	router.SetTrustedProxies([]string{"127.0.0.1"})
 
+	// Set the api base url.
 	baseUrl := fmt.Sprintf("%s/v%d/", prefix, api_ver)
-	productController := controller.CreateProductController(app.DB)
+	
+	// Register user module
 	userController := controller.CreateUserController(app.DB)
-
-
-	publicRoutes := router.Group(baseUrl+"/auth")
+	publicRoutes := router.Group(fmt.Sprintf("%s/auth", baseUrl))
 	publicRoutes.POST("/register", userController.Register)
 	publicRoutes.POST("/login", userController.Login)
 
-	protectedRoutes := router.Group(baseUrl+"/product")
+	// Register product module
+	productController := controller.CreateProductController(app.DB)
+	protectedRoutes := router.Group(fmt.Sprintf("%s/product", baseUrl))
+	// Set Auth for the module routes
 	protectedRoutes.Use(middleware.JWTAuthMiddleware())
 
+	// Set the product module routes.
 	protectedRoutes.POST("", productController.Create)
 	protectedRoutes.GET("", productController.GetAll)
 	protectedRoutes.GET(":id", productController.GetSingle)
