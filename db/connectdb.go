@@ -26,6 +26,7 @@ func OpenDBConnection() (*sql.DB) {
     }
     
     v := DbInfo{
+        // Read the connection propertied from the env variables.
         Host:     os.Getenv("DB_HOST"),
         Port:     os.Getenv("DB_PORT"),
         User:     os.Getenv("DB_USER"),
