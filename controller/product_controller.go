@@ -22,10 +22,6 @@ func CreateProductController(db *sql.DB) ProductControllerInterface {
 	return &ProductController{Db: db}
 }
 
-func AddRequestHeader(c *gin.Context) {
-	c.Header("Content-Type", "application/json")
-}
-
 // GetAll implements ProductControllerInterface
 func (m *ProductController) GetAll(c *gin.Context) {
 	AddRequestHeader(c)
@@ -42,7 +38,6 @@ func (m *ProductController) GetAll(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		return
 	}
-	
 	
 	if (res != nil) {
 		c.JSON(http.StatusOK, gin.H{"status": "success", "data": res, "msg": nil})
@@ -65,7 +60,7 @@ func (m *ProductController) GetSingle(c *gin.Context) {
 	}
 	repository := repository.NewProductRepository(DB)
 	
-	res, err := repository.GetSingle(uri.ID)
+	res, err := repository.GetSingle(uri.Id)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		return
@@ -120,7 +115,7 @@ func (m *ProductController) Update(c *gin.Context) {
 		return
 	}
 	repository := repository.NewProductRepository(DB)
-	res, err := repository.Update(uri.ID, product)
+	res, err := repository.Update(uri.Id, product)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		return
@@ -156,7 +151,7 @@ func (m *ProductController) UpdatePrice(c *gin.Context){
 
 	DB := m.Db
 	repository := repository.NewProductRepository(DB)
-	product, err := repository.GetSingle(uri.ID)
+	product, err := repository.GetSingle(uri.Id)
 
     if err != nil || !utils.IsValidUUID(product.Id) {
 		 //return custom request for bad request or item not found
@@ -164,7 +159,7 @@ func (m *ProductController) UpdatePrice(c *gin.Context){
         return
     }
 
-    res, err := repository.UpdatePrice(uri.ID, price)
+    res, err := repository.UpdatePrice(uri.Id, price)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		return
@@ -200,9 +195,7 @@ func (m *ProductController) UpdateImage(c *gin.Context){
 	
 	 imageName := fmt.Sprintf("%s.%s", filename, fileExt)
 	
-	//todo: Add file size/dimaentions and file ext. validation here.
-
-
+	//todo: Add file size/dimentions and file ext. validation here.
 	// Just for the demo, Do not use this for any real world solution. 
 	// Do not store uploaded files on your web server, use AWS/GCP cloud bucket instead.
 	 err = c.SaveUploadedFile(file, fmt.Sprintf("./images/%s", imageName))
@@ -229,13 +222,14 @@ func (m *ProductController) UpdateImage(c *gin.Context){
 		 return
 	 }
  
-
-	//  res, err := repository.UpdateImage(uri.ID, image)
-	//  if err != nil {
-	// 	 c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
-	// 	 return
-	//  }
-	//  log.Println("UpdateImage res :", res)
+	 DB := m.Db
+	 repository := repository.NewProductRepository(DB)
+	 res, err := repository.UpdateImage(uri.Id, image)
+	 if err != nil {
+		 c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
+		 return
+	 }
+	 log.Println("UpdateImage res :", res)
 
 
 	 c.JSON(http.StatusCreated, gin.H{"status": "success", "data": "Image uploaded successfully", "msg": data})
@@ -251,7 +245,7 @@ func (m *ProductController) Delete(c *gin.Context) {
 		return
 	}
 	repository := repository.NewProductRepository(DB)
-	res := repository.Delete(uri.ID)
+	res := repository.Delete(uri.Id)
 	if res {
 		c.JSON(http.StatusOK, gin.H{"status": "success", "msg": nil})
 		return
