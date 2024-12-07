@@ -13,7 +13,13 @@ A Starter Template API CRUD project using Go, Gin and PostgreSQL.
 - PostgreSQL : https://www.postgresql.org/docs/
 
 To start the project, open Terminal:
-go run main.go
+go run ./cmd/main.go
+
+using docker compose:
+docker compose up --build
+
+To Shot down:
+docker-compose down --remove-orphans --volumes
 
 Database:
 
