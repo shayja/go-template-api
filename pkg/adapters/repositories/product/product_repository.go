@@ -1,12 +1,12 @@
-package repository
+package repositories
 
 import (
 	"database/sql"
 	"log"
 	"time"
 
-	"github.com/shayja/go-template-api/model"
-	"github.com/shayja/go-template-api/utils"
+	"github.com/shayja/go-template-api/internal/utils"
+	"github.com/shayja/go-template-api/pkg/entities"
 )
 
 type ProductRepository struct {
@@ -21,7 +21,7 @@ func NewProductRepository(db *sql.DB) ProductRepositoryInterface {
 }
 
 // Get all product items
-func (m *ProductRepository) GetAll(page int)([]model.Product, error) {
+func (m *ProductRepository) GetAll(page int)([]entities.Product, error) {
 
 	offset := PAGE_SIZE * (page - 1)
 	// Optional: Use query text or call a DB Function.
@@ -35,8 +35,8 @@ func (m *ProductRepository) GetAll(page int)([]model.Product, error) {
 	}
     defer query.Close()
 	
-	var products []model.Product
-	var product model.Product
+	var products []entities.Product
+	var product entities.Product
 	if query != nil {
 		for query.Next() {
 			err := query.Scan(&product.Id, &product.Name, &product.Description, &product.Image, &product.Price, &product.Sku, &product.UpdatedAt, &product.CreatedAt)
@@ -51,21 +51,21 @@ func (m *ProductRepository) GetAll(page int)([]model.Product, error) {
 }
 
 // Get a single item by id
-func (m *ProductRepository) GetSingle(id string) (model.Product, error) {
+func (m *ProductRepository) GetSingle(id string) (entities.Product, error) {
 	//query, err := m.Db.Query("SELECT id, name, description, image, price, sku FROM products WHERE id = $1", id)
 	SQL := `SELECT * FROM get_product($1)`
 	query, err := m.Db.Query(SQL, id)
 	if err != nil {
 		log.Fatal(err)
-		return model.Product{}, err
+		return entities.Product{}, err
 	}
-	var product model.Product
+	var product entities.Product
 	if query != nil {
 		for query.Next() {
 			err := query.Scan(&product.Id, &product.Name, &product.Description, &product.Image, &product.Price, &product.Sku, &product.UpdatedAt, &product.CreatedAt)
 			if err != nil {
 				log.Fatal(err)
-				return model.Product{}, err
+				return entities.Product{}, err
 			}
 		}
 	}
@@ -73,50 +73,50 @@ func (m *ProductRepository) GetSingle(id string) (model.Product, error) {
 }
 
 // Create implements ProductRepositoryInterface
-func (m *ProductRepository) Create(post model.ProductRequest) (string, error) {
+func (m *ProductRepository) Create(product *entities.ProductRequest) (string, error) {
 	
 	newId := utils.CreateNewUUID().String()
-	err := m.Db.QueryRow("CALL products_insert($1, $2, $3, $4, $5, $6, $7)", post.Name, post.Description, post.Price, post.Image, post.Sku, time.Now(), newId).Scan(&newId)
+	err := m.Db.QueryRow("CALL products_insert($1, $2, $3, $4, $5, $6, $7)", product.Name, product.Description, product.Price, product.Image, product.Sku, time.Now(), newId).Scan(&newId)
 	if err != nil {
 		log.Fatal(err)
 		return newId, err
 	}
 
-	log.Printf("Product %s created successfully (new id is %s)\n", post.Name, newId)
+	log.Printf("Product %s created successfully (new id is %s)\n", product.Name, newId)
 
 	// return the id of the new row
 	return newId, nil
 }
 
 // Update product item
-func (m *ProductRepository) Update(id string, post model.ProductRequest) (model.Product, error) {
+func (m *ProductRepository) Update(id string, product *entities.ProductRequest) (entities.Product, error) {
 
-	_, err := m.Db.Exec("CALL products_update($1, $2, $3, $4, $5, $6)", id, post.Name, post.Description, post.Price, post.Image, post.Sku)
+	_, err := m.Db.Exec("CALL products_update($1, $2, $3, $4, $5, $6)", id, product.Name, product.Description, product.Price, product.Image, product.Sku)
 	if err != nil {
 		log.Fatal(err)
-		return model.Product{}, err
+		return entities.Product{}, err
 	}
 
 	return m.GetSingle(id)
 }
 
 // Update product item price
-func (m *ProductRepository) UpdatePrice(id string, post model.ProductPriceRequest) (model.Product, error) {
+func (m *ProductRepository) UpdatePrice(id string, post *entities.ProductPriceRequest) (entities.Product, error) {
 	
 	res, err := m.Db.Exec("CALL products_update_price($1, $2)", id, post.Price)
 	if err != nil {
 		log.Fatal(err, res)
-		return model.Product{}, err
+		return entities.Product{}, err
 	}
 	return m.GetSingle(id)
 }
 
 // Update product image
-func (m *ProductRepository) UpdateImage(id string, post model.ProductImageRequest) (model.Product, error) {
+func (m *ProductRepository) UpdateImage(id string, post *entities.ProductImageRequest) (entities.Product, error) {
 	_, err := m.Db.Exec("CALL products_update_image($1, $2)", id, post.Image)
 	if err != nil {
 		log.Fatal(err)
-		return model.Product{}, err
+		return entities.Product{}, err
 	}
 	return m.GetSingle(id)
 }

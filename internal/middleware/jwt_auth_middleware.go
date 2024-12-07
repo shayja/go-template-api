@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/shayja/go-template-api/helper"
+	"github.com/shayja/go-template-api/internal/helper"
 )
 
 func JWTAuthMiddleware() gin.HandlerFunc {

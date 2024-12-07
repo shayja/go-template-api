@@ -11,8 +11,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
-	"github.com/shayja/go-template-api/model"
-	"github.com/shayja/go-template-api/service"
+	"github.com/shayja/go-template-api/pkg/entities"
+	"github.com/shayja/go-template-api/pkg/usecases"
 )
 
 var privateKey = []byte(os.Getenv("JWT_PRIVATE_KEY"))
@@ -21,7 +21,7 @@ type JwtHelper struct {
 	Db *sql.DB
 }
 
-func GenerateJWT(user model.User) (string, error) {
+func GenerateJWT(user entities.User) (string, error) {
 	tokenTTL, _ := strconv.Atoi(os.Getenv("TOKEN_TTL"))
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"id":  user.Id,
@@ -48,10 +48,10 @@ func ValidateJWT(context *gin.Context) error {
 }
 
 
-func(m *JwtHelper) CurrentUser(context *gin.Context) (model.User, error) {
+func(m *JwtHelper) CurrentUser(context *gin.Context) (entities.User, error) {
 	err := ValidateJWT(context)
 	if err != nil {
-		return model.User{}, err
+		return entities.User{}, err
 	}
 
 	token, _ := getToken(context)
@@ -59,11 +59,11 @@ func(m *JwtHelper) CurrentUser(context *gin.Context) (model.User, error) {
 	userId := string(claims["id"].(string))
 
 
-	service := service.CreateUserService(m.Db)
+	usr := usecases.CreateUserService(m.Db)
 
-	user, err := service.GetById(userId)
+	user, err := usr.GetById(userId)
 	if err != nil {
-		return model.User{}, err
+		return entities.User{}, err
 	}
 	return user, nil
 }

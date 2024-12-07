@@ -1,14 +1,14 @@
-package controller
+package controllers
 
 import (
 	"database/sql"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/shayja/go-template-api/helper"
-	"github.com/shayja/go-template-api/model"
-	repository "github.com/shayja/go-template-api/repository/user"
-	"github.com/shayja/go-template-api/utils"
+	"github.com/shayja/go-template-api/internal/helper"
+	repositories "github.com/shayja/go-template-api/pkg/adapters/repositories/user"
+	"github.com/shayja/go-template-api/pkg/entities"
+	"github.com/shayja/go-template-api/internal/utils"
 )
 
 type AuthenticationController struct {
@@ -24,16 +24,16 @@ func (m *AuthenticationController) Register(c *gin.Context) {
 	AddRequestHeader(c)
 	DB := m.Db
 
-	var userReq model.User
+	var userReq entities.User
 	if err := c.ShouldBindJSON(&userReq); err != nil {
 
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		return
 	}
 	
-	repository := repository.NewUserRepository(DB)
+	repositories := repositories.NewUserRepository(DB)
 
-	insertedId, err := repository.Create(userReq)
+	insertedId, err := repositories.Create(userReq)
 	
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
@@ -48,7 +48,7 @@ func (m *AuthenticationController) Register(c *gin.Context) {
 }
 
 func (m *AuthenticationController) Login(c *gin.Context) {
-	var input model.AuthenticateRequest
+	var input entities.AuthenticateRequest
 
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
@@ -58,16 +58,16 @@ func (m *AuthenticationController) Login(c *gin.Context) {
 	AddRequestHeader(c)
 	DB := m.Db
 
-	repository := repository.NewUserRepository(DB)
+	repositories := repositories.NewUserRepository(DB)
 
-	user, err := repository.GetByUsername(input.Username)
+	user, err := repositories.GetByUsername(input.Username)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		return
 	}
 
-	err = repository.ValidatePassword(user, input.Password)
+	err = repositories.ValidatePassword(user, input.Password)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})

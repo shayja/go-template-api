@@ -1,4 +1,4 @@
-package controller
+package controllers
 
 import (
 	"database/sql"
@@ -9,9 +9,9 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/shayja/go-template-api/model"
-	repository "github.com/shayja/go-template-api/repository/product"
-	"github.com/shayja/go-template-api/utils"
+	"github.com/shayja/go-template-api/internal/utils"
+	repositories "github.com/shayja/go-template-api/pkg/adapters/repositories/product"
+	"github.com/shayja/go-template-api/pkg/entities"
 )
 
 type ProductController struct {
@@ -26,14 +26,14 @@ func CreateProductController(db *sql.DB) ProductControllerInterface {
 func (m *ProductController) GetAll(c *gin.Context) {
 	AddRequestHeader(c)
 	DB := m.Db
-	repository := repository.NewProductRepository(DB)
+	repositories := repositories.NewProductRepository(DB)
 	page, err := strconv.Atoi(c.Query("page"));
 
 	if (err != nil) {
 		panic(err)
     }
 
-	res, err := repository.GetAll(page)
+	res, err := repositories.GetAll(page)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		return
@@ -53,14 +53,14 @@ func (m *ProductController) GetSingle(c *gin.Context) {
 	AddRequestHeader(c)
 	DB := m.Db
 
-	var uri model.ProductUri
+	var uri entities.ProductUri
 	if err := c.ShouldBindUri(&uri); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		return
 	}
-	repository := repository.NewProductRepository(DB)
+	repositories := repositories.NewProductRepository(DB)
 	
-	res, err := repository.GetSingle(uri.Id)
+	res, err := repositories.GetSingle(uri.Id)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		return
@@ -77,13 +77,13 @@ func (m *ProductController) GetSingle(c *gin.Context) {
 func (m *ProductController) Create(c *gin.Context) {
 	AddRequestHeader(c)
 	DB := m.Db
-	var post model.ProductRequest
+	var post *entities.ProductRequest
 	if err := c.ShouldBind(&post); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		return
 	}
-	repository := repository.NewProductRepository(DB)
-	insertedId, err := repository.Create(post)
+	repositories := repositories.NewProductRepository(DB)
+	insertedId, err := repositories.Create(post)
 	
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
@@ -101,7 +101,7 @@ func (m *ProductController) Create(c *gin.Context) {
 func (m *ProductController) Update(c *gin.Context) {
 	AddRequestHeader(c)
 	DB := m.Db
-	var product model.ProductRequest
+	var product *entities.ProductRequest
 	
 	if err := c.ShouldBind(&product); err != nil {
 		log.Fatal(err)
@@ -109,13 +109,13 @@ func (m *ProductController) Update(c *gin.Context) {
 		return
 	}
    
-	var uri model.ProductUri
+	var uri entities.ProductUri
 	if err := c.ShouldBindUri(&uri); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		return
 	}
-	repository := repository.NewProductRepository(DB)
-	res, err := repository.Update(uri.Id, product)
+	repositories := repositories.NewProductRepository(DB)
+	res, err := repositories.Update(uri.Id, product)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		return
@@ -132,13 +132,13 @@ func (m *ProductController) Update(c *gin.Context) {
 //change a specific product price
 func (m *ProductController) UpdatePrice(c *gin.Context){
 	AddRequestHeader(c)
-    var uri model.ProductUri
+    var uri entities.ProductUri
 	if err := c.ShouldBindUri(&uri); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		return
 	}
 
-	var price model.ProductPriceRequest
+	var price *entities.ProductPriceRequest
 	if err := c.ShouldBind(&price); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		return
@@ -150,8 +150,8 @@ func (m *ProductController) UpdatePrice(c *gin.Context){
     }
 
 	DB := m.Db
-	repository := repository.NewProductRepository(DB)
-	product, err := repository.GetSingle(uri.Id)
+	repositories := repositories.NewProductRepository(DB)
+	product, err := repositories.GetSingle(uri.Id)
 
     if err != nil || !utils.IsValidUUID(product.Id) {
 		 //return custom request for bad request or item not found
@@ -159,7 +159,7 @@ func (m *ProductController) UpdatePrice(c *gin.Context){
         return
     }
 
-    res, err := repository.UpdatePrice(uri.Id, price)
+    res, err := repositories.UpdatePrice(uri.Id, price)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		return
@@ -174,7 +174,7 @@ func (m *ProductController) UpdatePrice(c *gin.Context){
 
 func (m *ProductController) UpdateImage(c *gin.Context){
 	AddRequestHeader(c)
-    var uri model.ProductUri
+    var uri entities.ProductUri
 	if err := c.ShouldBindUri(&uri); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		return
@@ -216,15 +216,15 @@ func (m *ProductController) UpdateImage(c *gin.Context){
 	  "size":      file.Size,
 	 }
 	
-	 var image model.ProductImageRequest
+	 var image *entities.ProductImageRequest
 	 if err := c.ShouldBind(&image); err != nil {
 		 c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		 return
 	 }
  
 	 DB := m.Db
-	 repository := repository.NewProductRepository(DB)
-	 res, err := repository.UpdateImage(uri.Id, image)
+	 repositories := repositories.NewProductRepository(DB)
+	 res, err := repositories.UpdateImage(uri.Id, image)
 	 if err != nil {
 		 c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		 return
@@ -239,13 +239,13 @@ func (m *ProductController) UpdateImage(c *gin.Context){
 func (m *ProductController) Delete(c *gin.Context) {
 	AddRequestHeader(c)
 	DB := m.Db
-	var uri model.ProductUri
+	var uri entities.ProductUri
 	if err := c.ShouldBindUri(&uri); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		return
 	}
-	repository := repository.NewProductRepository(DB)
-	res := repository.Delete(uri.Id)
+	repositories := repositories.NewProductRepository(DB)
+	res := repositories.Delete(uri.Id)
 	if res {
 		c.JSON(http.StatusOK, gin.H{"status": "success", "msg": nil})
 		return

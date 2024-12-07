@@ -1,4 +1,4 @@
-package repository
+package repositories
 
 import (
 	"regexp"
@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/shayja/go-template-api/model"
+	"github.com/shayja/go-template-api/pkg/entities"
 )
 
 func TestGetAllProduct(t *testing.T) {
@@ -38,7 +38,7 @@ func TestGetAllProduct(t *testing.T) {
 	}
 
 	// Define the expected result
-	expectedProducts := []model.Product{
+	expectedProducts := []entities.Product{
 		{
 			Id: "2d248bb4-e831-44b1-8595-446d460cc511",
 			Name: "Product 1",
