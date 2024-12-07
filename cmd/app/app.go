@@ -8,7 +8,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/shayja/go-template-api/internal/middleware"
 	"github.com/shayja/go-template-api/pkg/adapters/controllers"
+	productrepo "github.com/shayja/go-template-api/pkg/adapters/repositories/product"
+	userrepo "github.com/shayja/go-template-api/pkg/adapters/repositories/user"
 	"github.com/shayja/go-template-api/pkg/frameworks/db"
+	"github.com/shayja/go-template-api/pkg/usecases"
 )
 
 type App struct {
@@ -34,14 +37,22 @@ func (app *App) Routes() {
 	// Set the api base url.
 	baseUrl := fmt.Sprintf("%s/v%d/", prefix, api_ver)
 	
-	// Register user module
-	userController := controllers.CreateUserController(app.DB)
+	// Register the User module
+	userRepo := &userrepo.UserRepository{Db: app.DB}
+    userInteractor := usecases.UserInteractor{UserRepository: userRepo}
+    userController := controllers.UserController{UserInteractor: userInteractor}
+	// Configure User Routes
 	publicRoutes := router.Group(fmt.Sprintf("%s/auth", baseUrl))
-	publicRoutes.POST("/register", userController.Register)
+	publicRoutes.POST("/register", userController.RegisterUser)
 	publicRoutes.POST("/login", userController.Login)
 
-	// Register product module
-	productController := controllers.CreateProductController(app.DB)
+
+	// Register the Product module
+	productRepo := &productrepo.ProductRepository{Db: app.DB}
+	productInteractor := usecases.ProductInteractor{ProductRepository: productRepo}
+	productController := controllers.ProductController{ProductInteractor: productInteractor}
+
+	// Configure Product Routes
 	protectedRoutes := router.Group(fmt.Sprintf("%s/product", baseUrl))
 	// Set Auth for the module routes
 	protectedRoutes.Use(middleware.JWTAuthMiddleware())
@@ -49,7 +60,7 @@ func (app *App) Routes() {
 	// Set the product module routes.
 	protectedRoutes.POST("", productController.Create)
 	protectedRoutes.GET("", productController.GetAll)
-	protectedRoutes.GET(":id", productController.GetSingle)
+	protectedRoutes.GET(":id", productController.GetById)
 	protectedRoutes.PUT(":id", productController.Update)
 	protectedRoutes.PATCH(":id", productController.UpdatePrice)
 	protectedRoutes.POST("/image/:id", productController.UpdateImage)

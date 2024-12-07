@@ -2,7 +2,6 @@
 package controllers
 
 import (
-	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
@@ -11,30 +10,25 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/shayja/go-template-api/internal/utils"
-	repositories "github.com/shayja/go-template-api/pkg/adapters/repositories/product"
 	"github.com/shayja/go-template-api/pkg/entities"
+	"github.com/shayja/go-template-api/pkg/usecases"
 )
 
 type ProductController struct {
-	Db *sql.DB
-}
-
-func CreateProductController(db *sql.DB) ProductControllerInterface {
-	return &ProductController{Db: db}
+	ProductInteractor usecases.ProductInteractor
 }
 
 // GetAll implements ProductControllerInterface
-func (m *ProductController) GetAll(c *gin.Context) {
+func (uc *ProductController) GetAll(c *gin.Context) {
 	AddRequestHeader(c)
-	DB := m.Db
-	repositories := repositories.NewProductRepository(DB)
+	
 	page, err := strconv.Atoi(c.Query("page"));
 
 	if (err != nil) {
 		panic(err)
     }
 
-	res, err := repositories.GetAll(page)
+	res, err := uc.ProductInteractor.GetAll(page)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		return
@@ -49,19 +43,19 @@ func (m *ProductController) GetAll(c *gin.Context) {
 	}
 }
 
-// GetSingle implements ProductControllerInterface
-func (m *ProductController) GetSingle(c *gin.Context) {
+// GetById implements ProductControllerInterface
+func (uc *ProductController) GetById(c *gin.Context) {
 	AddRequestHeader(c)
-	DB := m.Db
+	
 
 	var uri entities.ProductUri
 	if err := c.ShouldBindUri(&uri); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		return
 	}
-	repositories := repositories.NewProductRepository(DB)
 	
-	res, err := repositories.GetSingle(uri.Id)
+	
+	res, err := uc.ProductInteractor.GetById(uri.Id)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		return
@@ -75,16 +69,16 @@ func (m *ProductController) GetSingle(c *gin.Context) {
 }
 
 // Create implements ProductControllerInterface
-func (m *ProductController) Create(c *gin.Context) {
+func (uc *ProductController) Create(c *gin.Context) {
 	AddRequestHeader(c)
-	DB := m.Db
+	
 	var post *entities.ProductRequest
 	if err := c.ShouldBind(&post); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		return
 	}
-	repositories := repositories.NewProductRepository(DB)
-	insertedId, err := repositories.Create(post)
+	
+	insertedId, err := uc.ProductInteractor.Create(post)
 	
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
@@ -99,9 +93,9 @@ func (m *ProductController) Create(c *gin.Context) {
 }
 
 // Update implements ProductControllerInterface
-func (m *ProductController) Update(c *gin.Context) {
+func (uc *ProductController) Update(c *gin.Context) {
 	AddRequestHeader(c)
-	DB := m.Db
+	
 	var product *entities.ProductRequest
 	
 	if err := c.ShouldBind(&product); err != nil {
@@ -115,8 +109,8 @@ func (m *ProductController) Update(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		return
 	}
-	repositories := repositories.NewProductRepository(DB)
-	res, err := repositories.Update(uri.Id, product)
+	
+	res, err := uc.ProductInteractor.Update(uri.Id, product)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		return
@@ -131,7 +125,7 @@ func (m *ProductController) Update(c *gin.Context) {
 }
 
 //change a specific product price
-func (m *ProductController) UpdatePrice(c *gin.Context){
+func (uc *ProductController) UpdatePrice(c *gin.Context){
 	AddRequestHeader(c)
     var uri entities.ProductUri
 	if err := c.ShouldBindUri(&uri); err != nil {
@@ -150,9 +144,9 @@ func (m *ProductController) UpdatePrice(c *gin.Context){
         return
     }
 
-	DB := m.Db
-	repositories := repositories.NewProductRepository(DB)
-	product, err := repositories.GetSingle(uri.Id)
+	
+	
+	product, err := uc.ProductInteractor.GetById(uri.Id)
 
     if err != nil || !utils.IsValidUUID(product.Id) {
 		 //return custom request for bad request or item not found
@@ -160,7 +154,7 @@ func (m *ProductController) UpdatePrice(c *gin.Context){
         return
     }
 
-    res, err := repositories.UpdatePrice(uri.Id, price)
+    res, err := uc.ProductInteractor.UpdatePrice(uri.Id, price)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		return
@@ -173,7 +167,7 @@ func (m *ProductController) UpdatePrice(c *gin.Context){
 	}
 }
 
-func (m *ProductController) UpdateImage(c *gin.Context){
+func (uc *ProductController) UpdateImage(c *gin.Context){
 	AddRequestHeader(c)
     var uri entities.ProductUri
 	if err := c.ShouldBindUri(&uri); err != nil {
@@ -223,9 +217,9 @@ func (m *ProductController) UpdateImage(c *gin.Context){
 		 return
 	 }
  
-	 DB := m.Db
-	 repositories := repositories.NewProductRepository(DB)
-	 res, err := repositories.UpdateImage(uri.Id, image)
+	 
+	 
+	 res, err := uc.ProductInteractor.UpdateImage(uri.Id, image)
 	 if err != nil {
 		 c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		 return
@@ -237,16 +231,16 @@ func (m *ProductController) UpdateImage(c *gin.Context){
    }
 
 // Delete implements ProductController Interface
-func (m *ProductController) Delete(c *gin.Context) {
+func (uc *ProductController) Delete(c *gin.Context) {
 	AddRequestHeader(c)
-	DB := m.Db
+	
 	var uri entities.ProductUri
 	if err := c.ShouldBindUri(&uri); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		return
 	}
-	repositories := repositories.NewProductRepository(DB)
-	res := repositories.Delete(uri.Id)
+	
+	res := uc.ProductInteractor.Delete(uri.Id)
 	if res {
 		c.JSON(http.StatusOK, gin.H{"status": "success", "msg": nil})
 		return

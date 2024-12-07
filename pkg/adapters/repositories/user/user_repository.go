@@ -17,26 +17,22 @@ type UserRepository struct {
 	Db *sql.DB
 }
 
-func NewUserRepository(db *sql.DB) UserRepositoryInterface {
-	return &UserRepository{Db: db}
-}
-
 // Get a single item by id
-func (m *UserRepository) GetById(id string) (entities.User, error) {
+func (m *UserRepository) GetUserById(id string) (*entities.User, error){
 	SQL := `SELECT * FROM get_user($1)`
 	query, err := m.Db.Query(SQL, id)
 	if err != nil {
 		log.Fatal(err)
-		return entities.User{}, err
+		return nil, err
 	}
 
-	var user entities.User
+	user := &entities.User{}
 	if query != nil {
 		for query.Next() {
 			err := query.Scan(&user.Id, &user.Username, &user.Password, &user.Mobile, &user.Name, &user.Email,  &user.UpdatedAt, &user.CreatedAt)
 			if err != nil {
 				log.Fatal(err)
-				return entities.User{}, err
+				return nil, err
 			}
 		}
 	}
@@ -44,21 +40,21 @@ func (m *UserRepository) GetById(id string) (entities.User, error) {
 }
 
 // GetByUsername implements UserRepositoryInterface.
-func (m *UserRepository) GetByUsername(username string) (entities.User, error) {
+func (m *UserRepository) GetByUsername(username string) (*entities.User, error) {
 	SQL := `SELECT * FROM get_user_by_username($1)`
 	query, err := m.Db.Query(SQL, username)
 	if err != nil {
 		log.Fatal(err)
-		return entities.User{}, err
+		return nil, err
 	}
 
-	var user entities.User
+	user := &entities.User{}
 	if query != nil {
 		for query.Next() {
 			err := query.Scan(&user.Id, &user.Username, &user.Password, &user.Mobile, &user.Name, &user.Email,  &user.UpdatedAt, &user.CreatedAt)
 			if err != nil {
 				log.Fatal(err)
-				return entities.User{}, err
+				return nil, err
 			}
 		}
 	}
@@ -67,10 +63,10 @@ func (m *UserRepository) GetByUsername(username string) (entities.User, error) {
 
 
 // Create user implements UserRepositoryInterface.
-func (m *UserRepository) Create(user entities.User) (string, error) {
-	err := OnBeforeSave(&user)
+func (m *UserRepository) CreateUser(user *entities.User) (*entities.User, error) {
+	err := OnBeforeSave(user)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	var newId string
@@ -78,13 +74,13 @@ func (m *UserRepository) Create(user entities.User) (string, error) {
 	
 	if db_err != nil {
 		log.Fatal(db_err)
-		return newId, db_err
+		return user, db_err
 	}
 
 	log.Printf("user %s created successfully (new id is %s)\n", user.Name, newId)
 
 	// return the id of the new row
-	return newId, nil
+	return user, nil
 }
 
 func OnBeforeSave(user *entities.User) error {
@@ -100,6 +96,6 @@ func OnBeforeSave(user *entities.User) error {
 }
 
 
-func (m *UserRepository) ValidatePassword(user entities.User, password string) error {
+func (m *UserRepository) ValidatePassword(user *entities.User, password string) error {
 	return bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 }

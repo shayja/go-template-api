@@ -2,28 +2,39 @@
 package usecases
 
 import (
-	"database/sql"
-
-	repositories "github.com/shayja/go-template-api/pkg/adapters/repositories/user"
 	"github.com/shayja/go-template-api/pkg/entities"
 )
 
-type UserService struct {
-	Db *sql.DB
+type UserRepository interface {
+	GetUserById(id string) (*entities.User, error)
+	GetByUsername(username string) (*entities.User, error)
+	ValidatePassword(user *entities.User, password string) error
+	CreateUser(user *entities.User) (*entities.User, error)
 }
 
-func CreateUserService(db *sql.DB) UserServiceInterface {
-	return &UserService{Db: db}
+type UserInteractor struct {
+    UserRepository UserRepository
 }
 
-func (m *UserService) GetById(id string) (entities.User, error) {
-	DB := m.Db
-	repositories := repositories.NewUserRepository(DB)
-	res, err := repositories.GetById(id)
+func (uc *UserInteractor) GetUserById(id string) (*entities.User, error) {
+	return uc.UserRepository.GetUserById(id)
+}
 
-    if err != nil {
-        return entities.User{}, err
+func (uc *UserInteractor) GetByUsername(username string) (*entities.User, error) {
+	return uc.UserRepository.GetByUsername(username)
+}
+
+func (uc *UserInteractor) ValidatePassword(user *entities.User, password string) error {
+	return uc.UserRepository.ValidatePassword(user, password)
+}
+
+
+func (uc *UserInteractor) RegisterUser(name string, email string, password string) (*entities.User, error) {
+    user := &entities.User{
+        Name:     name,
+        Email:    email,
+        Password: password,
     }
-	return res, nil
+    return uc.UserRepository.CreateUser(user)
 }
 

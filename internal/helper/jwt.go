@@ -1,7 +1,6 @@
 package helper
 
 import (
-	"database/sql"
 	"errors"
 	"fmt"
 	"os"
@@ -18,10 +17,9 @@ import (
 var privateKey = []byte(os.Getenv("JWT_PRIVATE_KEY"))
 
 type JwtHelper struct {
-	Db *sql.DB
+    UserInteractor usecases.UserInteractor
 }
-
-func GenerateJWT(user entities.User) (string, error) {
+func GenerateJWT(user *entities.User) (string, error) {
 	tokenTTL, _ := strconv.Atoi(os.Getenv("TOKEN_TTL"))
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"id":  user.Id,
@@ -48,22 +46,19 @@ func ValidateJWT(context *gin.Context) error {
 }
 
 
-func(m *JwtHelper) CurrentUser(context *gin.Context) (entities.User, error) {
+func(m *JwtHelper) CurrentUser(context *gin.Context) (*entities.User, error) {
 	err := ValidateJWT(context)
 	if err != nil {
-		return entities.User{}, err
+		return nil, err
 	}
 
 	token, _ := getToken(context)
 	claims, _ := token.Claims.(jwt.MapClaims)
 	userId := string(claims["id"].(string))
 
-
-	usr := usecases.CreateUserService(m.Db)
-
-	user, err := usr.GetById(userId)
+	user, err := m.UserInteractor.GetUserById(userId)
 	if err != nil {
-		return entities.User{}, err
+		return nil, err
 	}
 	return user, nil
 }
