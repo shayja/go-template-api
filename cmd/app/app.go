@@ -55,7 +55,7 @@ func (app *App) Routes() {
 	// Configure Product Routes
 	protectedRoutes := router.Group(fmt.Sprintf("%s/product", baseUrl))
 	// Set Auth for the module routes
-	protectedRoutes.Use(middleware.JWTAuthMiddleware())
+	protectedRoutes.Use(middleware.AuthRequired())
 
 	// Set the product module routes.
 	protectedRoutes.POST("", productController.Create)

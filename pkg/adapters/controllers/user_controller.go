@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/shayja/go-template-api/internal/helper"
+	"github.com/shayja/go-template-api/internal/utils"
 	"github.com/shayja/go-template-api/pkg/entities"
 	"github.com/shayja/go-template-api/pkg/usecases"
 )
@@ -38,7 +38,7 @@ func (uc *UserController) Login(c *gin.Context) {
 		return
 	}
 
-	jwt, err := helper.GenerateJWT(user)
+	jwt, err := utils.GenerateJWT(user)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		return

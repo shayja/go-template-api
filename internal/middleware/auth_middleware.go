@@ -5,12 +5,12 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/shayja/go-template-api/internal/helper"
+	"github.com/shayja/go-template-api/internal/utils"
 )
 
-func JWTAuthMiddleware() gin.HandlerFunc {
+func AuthRequired() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		err := helper.ValidateJWT(context)
+		err := utils.ValidateJWT(context)
 		if err != nil {
 			context.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required"})
 			fmt.Println(err)
