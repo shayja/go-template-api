@@ -1,4 +1,4 @@
-package repository
+package repositories
 
 import (
 	"database/sql"
@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/shayja/go-template-api/model"
-	"github.com/shayja/go-template-api/utils"
+	"github.com/shayja/go-template-api/internal/utils"
+	"github.com/shayja/go-template-api/pkg/entities"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -21,21 +21,21 @@ func NewUserRepository(db *sql.DB) UserRepositoryInterface {
 }
 
 // Get a single item by id
-func (m *UserRepository) GetById(id string) (model.User, error) {
+func (m *UserRepository) GetById(id string) (entities.User, error) {
 	SQL := `SELECT * FROM get_user($1)`
 	query, err := m.Db.Query(SQL, id)
 	if err != nil {
 		log.Fatal(err)
-		return model.User{}, err
+		return entities.User{}, err
 	}
 
-	var user model.User
+	var user entities.User
 	if query != nil {
 		for query.Next() {
 			err := query.Scan(&user.Id, &user.Username, &user.Password, &user.Mobile, &user.Name, &user.Email,  &user.UpdatedAt, &user.CreatedAt)
 			if err != nil {
 				log.Fatal(err)
-				return model.User{}, err
+				return entities.User{}, err
 			}
 		}
 	}
@@ -43,21 +43,21 @@ func (m *UserRepository) GetById(id string) (model.User, error) {
 }
 
 // GetByUsername implements UserRepositoryInterface.
-func (m *UserRepository) GetByUsername(username string) (model.User, error) {
+func (m *UserRepository) GetByUsername(username string) (entities.User, error) {
 	SQL := `SELECT * FROM get_user_by_username($1)`
 	query, err := m.Db.Query(SQL, username)
 	if err != nil {
 		log.Fatal(err)
-		return model.User{}, err
+		return entities.User{}, err
 	}
 
-	var user model.User
+	var user entities.User
 	if query != nil {
 		for query.Next() {
 			err := query.Scan(&user.Id, &user.Username, &user.Password, &user.Mobile, &user.Name, &user.Email,  &user.UpdatedAt, &user.CreatedAt)
 			if err != nil {
 				log.Fatal(err)
-				return model.User{}, err
+				return entities.User{}, err
 			}
 		}
 	}
@@ -66,7 +66,7 @@ func (m *UserRepository) GetByUsername(username string) (model.User, error) {
 
 
 // Create user implements UserRepositoryInterface.
-func (m *UserRepository) Create(user model.User) (string, error) {
+func (m *UserRepository) Create(user entities.User) (string, error) {
 	err := OnBeforeSave(&user)
 	if err != nil {
 		return "", err
@@ -86,7 +86,7 @@ func (m *UserRepository) Create(user model.User) (string, error) {
 	return newId, nil
 }
 
-func OnBeforeSave(user *model.User) error {
+func OnBeforeSave(user *entities.User) error {
 
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
@@ -99,6 +99,6 @@ func OnBeforeSave(user *model.User) error {
 }
 
 
-func (m *UserRepository) ValidatePassword(user model.User, password string) error {
+func (m *UserRepository) ValidatePassword(user entities.User, password string) error {
 	return bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 }

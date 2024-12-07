@@ -1,3 +1,4 @@
+// cmd/app/main.go
 package app
 
 import (
@@ -5,9 +6,9 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
-	"github.com/shayja/go-template-api/controller"
-	"github.com/shayja/go-template-api/db"
-	"github.com/shayja/go-template-api/middleware"
+	"github.com/shayja/go-template-api/internal/middleware"
+	"github.com/shayja/go-template-api/pkg/adapters/controllers"
+	"github.com/shayja/go-template-api/pkg/frameworks/db"
 )
 
 type App struct {
@@ -34,13 +35,13 @@ func (app *App) Routes() {
 	baseUrl := fmt.Sprintf("%s/v%d/", prefix, api_ver)
 	
 	// Register user module
-	userController := controller.CreateUserController(app.DB)
+	userController := controllers.CreateUserController(app.DB)
 	publicRoutes := router.Group(fmt.Sprintf("%s/auth", baseUrl))
 	publicRoutes.POST("/register", userController.Register)
 	publicRoutes.POST("/login", userController.Login)
 
 	// Register product module
-	productController := controller.CreateProductController(app.DB)
+	productController := controllers.CreateProductController(app.DB)
 	protectedRoutes := router.Group(fmt.Sprintf("%s/product", baseUrl))
 	// Set Auth for the module routes
 	protectedRoutes.Use(middleware.JWTAuthMiddleware())

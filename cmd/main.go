@@ -1,8 +1,10 @@
+// cmd/app/main.go
 package main
 
-import "github.com/shayja/go-template-api/app"
+import "github.com/shayja/go-template-api/cmd/app"
 
-func main(){
+
+func main() {
 	var app app.App
 
 	// load database configuration and connection
