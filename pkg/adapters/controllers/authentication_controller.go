@@ -1,3 +1,4 @@
+// adapters/controllers/authentication_controller.go
 package controllers
 
 import (
@@ -6,9 +7,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/shayja/go-template-api/internal/helper"
+	"github.com/shayja/go-template-api/internal/utils"
 	repositories "github.com/shayja/go-template-api/pkg/adapters/repositories/user"
 	"github.com/shayja/go-template-api/pkg/entities"
-	"github.com/shayja/go-template-api/internal/utils"
 )
 
 type AuthenticationController struct {
@@ -48,7 +49,7 @@ func (m *AuthenticationController) Register(c *gin.Context) {
 }
 
 func (m *AuthenticationController) Login(c *gin.Context) {
-	var input entities.AuthenticateRequest
+	var input entities.AuthenticationInput
 
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})

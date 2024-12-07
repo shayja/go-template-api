@@ -1,3 +1,4 @@
+// adapters/controllers/product_interface.go
 package controllers
 
 import "github.com/gin-gonic/gin"

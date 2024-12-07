@@ -1,3 +1,4 @@
+// adapters/controllers/product_controller.go
 package controllers
 
 import (

@@ -1,3 +1,4 @@
+// entities/product.go
 package entities
 
 import (

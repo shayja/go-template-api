@@ -1,3 +1,4 @@
+// adapters/repositories/product_repository_test.go
 package repositories
 
 import (
