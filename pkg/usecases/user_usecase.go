@@ -2,6 +2,8 @@
 package usecases
 
 import (
+	"strings"
+
 	"github.com/shayja/go-template-api/pkg/entities"
 )
 
@@ -28,13 +30,14 @@ func (uc *UserInteractor) ValidatePassword(user *entities.User, password string)
 	return uc.UserRepository.ValidatePassword(user, password)
 }
 
-
-func (uc *UserInteractor) RegisterUser(name string, email string, password string) (*entities.User, error) {
+func (uc *UserInteractor) RegisterUser(request *entities.UserRequest) (*entities.User, error) {
     user := &entities.User{
-        Name:     name,
-        Email:    email,
-        Password: password,
-    }
+		Name: request.Name, 
+		Email: strings.ToLower(request.Email), 
+		Username: request.Username, 
+		Password: request.Password, 
+		Mobile: request.Mobile,
+	}
     return uc.UserRepository.CreateUser(user)
 }
 

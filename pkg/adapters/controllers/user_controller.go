@@ -51,21 +51,14 @@ func (uc *UserController) RegisterUser(c *gin.Context) {
 	
 	AddRequestHeader(c)
 
-	var userReq entities.User
+	var userReq entities.UserRequest
 	if err := c.ShouldBindJSON(&userReq); err != nil {
 
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		return
 	}
-	
-	var req struct {
-        Name     string `json:"name"`
-        Email    string `json:"email"`
-        Password string `json:"password"`
-    }
 
-    user, err := uc.UserInteractor.RegisterUser(req.Name, req.Email, req.Password)
-
+    user, err := uc.UserInteractor.RegisterUser(&userReq)
 	
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})

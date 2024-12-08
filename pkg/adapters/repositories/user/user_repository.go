@@ -69,15 +69,15 @@ func (m *UserRepository) CreateUser(user *entities.User) (*entities.User, error)
 		return nil, err
 	}
 
-	var newId string
-	db_err := m.Db.QueryRow("CALL users_insert($1, $2, $3, $4, $5, $6, $7)", user.Username, user.Password, user.Mobile, user.Name, user.Email, time.Now(), user.Id).Scan(&newId)
+	var lastInsertId string
+	db_err := m.Db.QueryRow("CALL users_insert($1, $2, $3, $4, $5, $6, $7)", user.Username, user.Password, user.Mobile, user.Name, user.Email, time.Now(), user.Id).Scan(&lastInsertId)
 	
 	if db_err != nil {
 		log.Fatal(db_err)
 		return user, db_err
 	}
 
-	log.Printf("user %s created successfully (new id is %s)\n", user.Name, newId)
+	log.Printf("user %s created successfully (new id is %s)\n", user.Name, lastInsertId)
 
 	// return the id of the new row
 	return user, nil

@@ -45,7 +45,9 @@ func (app *App) Routes() {
 	publicRoutes := router.Group(fmt.Sprintf("%s/auth", baseUrl))
 	publicRoutes.POST("/register", userController.RegisterUser)
 	publicRoutes.POST("/login", userController.Login)
-
+	//publicRoutes.POST("/verify_otp", userController.)
+	//publicRoutes.POST("/resend_otp", userController.)
+	//publicRoutes.POST("/me", userController.)
 
 	// Register the Product module
 	productRepo := &productrepo.ProductRepository{Db: app.DB}
