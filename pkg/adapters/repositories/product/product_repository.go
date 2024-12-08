@@ -33,9 +33,10 @@ func (m *ProductRepository) GetAll(page int) ([]*entities.Product, error) {
     defer query.Close()
 	
 	var products []*entities.Product
-	product := &entities.Product{}
+	
 	if query != nil {
 		for query.Next() {
+			product := &entities.Product{}
 			err := query.Scan(&product.Id, &product.Name, &product.Description, &product.Image, &product.Price, &product.Sku, &product.UpdatedAt, &product.CreatedAt)
 			if err != nil {
 				log.Fatal(err)
