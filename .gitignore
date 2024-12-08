@@ -19,6 +19,7 @@ mocks/
 
 # env file
 .env
+.env.docker
 
 #custom rules
 .DS_Store
