@@ -1,4 +1,4 @@
-// cmd/app/main.go
+// cmd/app/app.go
 package app
 
 import (
@@ -25,17 +25,12 @@ func (app *App) ConnectDB(){
 	app.DB = db
 }
 
-const (
-    prefix string = "/api"
-    api_ver uint8 = 1
-  )
-
 func (app *App) Routes() {
 	router := gin.Default()
 	router.SetTrustedProxies([]string{"127.0.0.1"})
 
 	// Set the api base url.
-	baseUrl := fmt.Sprintf("%s/v%d/", prefix, api_ver)
+	baseUrl := fmt.Sprintf("%s/v%d/", Prefix, ApiVersion)
 	
 	// Register the User module
 	userRepo := &userrepo.UserRepository{Db: app.DB}

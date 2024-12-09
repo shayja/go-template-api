@@ -9,26 +9,17 @@ import (
 	"github.com/shayja/go-template-api/config"
 )
 
-type DbInfo struct {
-    Host     string
-    Port     string
-    User     string
-    Password string
-    DBName   string
-    SSLMode  string
-}
-
 func OpenDBConnection() (*sql.DB) {
     
-    v := DbInfo{
-        // Read the connection propertied from the env variables.
-        Host:     config.Config("DB_HOST"),
-        Port:     config.Config("DB_PORT"),
-        User:     config.Config("DB_USER"),
-        Password: config.Config("DB_PASSWORD"),
-        DBName:   config.Config("DB_NAME"),
-        SSLMode:  config.Config("SSL_MODE"),
-    }
+    // Read the connection propertied from the env variables.
+    v := NewDbInfo(
+        config.Config("DB_HOST"),
+        config.Config("DB_PORT"),
+        config.Config("DB_USER"),
+        config.Config("DB_PASSWORD"),
+        config.Config("DB_NAME"),
+        config.Config("SSL_MODE"),
+    )
 
     // Format the connection string to the database
     connectionString := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", v.Host, v.Port, v.User, v.Password, v.DBName, v.SSLMode)
