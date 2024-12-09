@@ -9,7 +9,8 @@ import (
 
 type UserRepository interface {
 	GetUserById(id string) (*entities.User, error)
-	GetByUsername(username string) (*entities.User, error)
+	GetUserByUsername(username string) (*entities.User, error)
+	GetUserByMobile(mobile string) (string, error)
 	ValidatePassword(user *entities.User, password string) error
 	CreateUser(user *entities.User) (*entities.User, error)
 }
@@ -22,8 +23,12 @@ func (uc *UserInteractor) GetUserById(id string) (*entities.User, error) {
 	return uc.UserRepository.GetUserById(id)
 }
 
-func (uc *UserInteractor) GetByUsername(username string) (*entities.User, error) {
-	return uc.UserRepository.GetByUsername(username)
+func (uc *UserInteractor) GetUserByUsername(username string) (*entities.User, error) {
+	return uc.UserRepository.GetUserByUsername(username)
+}
+
+func (uc *UserInteractor) GetUserByMobile(mobile string) (string, error) {
+	return uc.UserRepository.GetUserByMobile(mobile)
 }
 
 func (uc *UserInteractor) ValidatePassword(user *entities.User, password string) error {

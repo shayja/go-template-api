@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
+	"github.com/shayja/go-template-api/config"
 	"github.com/shayja/go-template-api/internal/middleware"
 	"github.com/shayja/go-template-api/pkg/adapters/controllers"
 	productrepo "github.com/shayja/go-template-api/pkg/adapters/repositories/product"
@@ -31,7 +32,6 @@ const (
 
 func (app *App) Routes() {
 	router := gin.Default()
-	fmt.Println(gin.Version)
 	router.SetTrustedProxies([]string{"127.0.0.1"})
 
 	// Set the api base url.
@@ -45,9 +45,8 @@ func (app *App) Routes() {
 	publicRoutes := router.Group(fmt.Sprintf("%s/auth", baseUrl))
 	publicRoutes.POST("/register", userController.RegisterUser)
 	publicRoutes.POST("/login", userController.Login)
-	//publicRoutes.POST("/verify_otp", userController.)
-	//publicRoutes.POST("/resend_otp", userController.)
-	//publicRoutes.POST("/me", userController.)
+	//publicRoutes.POST("/verify_otp", userController.VerifyOTP)
+	//publicRoutes.POST("/resend_otp", userController.ResendOTP)
 
 	// Register the Product module
 	productRepo := &productrepo.ProductRepository{Db: app.DB}
@@ -74,5 +73,5 @@ func (app *App) Routes() {
 
 
 func (app *App) Run() {
-	app.Router.Run(":8080")
+	app.Router.Run(fmt.Sprintf(`:%s`, config.Config("SERVER_PORT")))
 }

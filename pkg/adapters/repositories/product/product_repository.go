@@ -3,7 +3,7 @@ package repositories
 
 import (
 	"database/sql"
-	"log"
+	"fmt"
 	"time"
 
 	"github.com/shayja/go-template-api/internal/utils"
@@ -27,7 +27,7 @@ func (m *ProductRepository) GetAll(page int) ([]*entities.Product, error) {
 	query, err := m.Db.Query(SQL, offset, PAGE_SIZE)
 
     if err != nil {
-		log.Fatal(err)
+		fmt.Print(err)
 		return nil, err
 	}
     defer query.Close()
@@ -39,7 +39,7 @@ func (m *ProductRepository) GetAll(page int) ([]*entities.Product, error) {
 			product := &entities.Product{}
 			err := query.Scan(&product.Id, &product.Name, &product.Description, &product.Image, &product.Price, &product.Sku, &product.UpdatedAt, &product.CreatedAt)
 			if err != nil {
-				log.Fatal(err)
+				fmt.Print(err)
 				return nil, err
 			}
 			products = append(products, product)
@@ -54,7 +54,7 @@ func (m *ProductRepository) GetById(id string) (*entities.Product, error) {
 	SQL := `SELECT * FROM get_product($1)`
 	query, err := m.Db.Query(SQL, id)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Print(err)
 		return nil, err
 	}
 	product := &entities.Product{}
@@ -62,7 +62,7 @@ func (m *ProductRepository) GetById(id string) (*entities.Product, error) {
 		for query.Next() {
 			err := query.Scan(&product.Id, &product.Name, &product.Description, &product.Image, &product.Price, &product.Sku, &product.UpdatedAt, &product.CreatedAt)
 			if err != nil {
-				log.Fatal(err)
+				fmt.Print(err)
 				return nil, err
 			}
 		}
@@ -76,11 +76,11 @@ func (m *ProductRepository) Create(product *entities.ProductRequest) (string, er
 	newId := utils.CreateNewUUID().String()
 	err := m.Db.QueryRow("CALL products_insert($1, $2, $3, $4, $5, $6, $7)", product.Name, product.Description, product.Price, product.Image, product.Sku, time.Now(), newId).Scan(&newId)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Print(err)
 		return newId, err
 	}
 
-	log.Printf("Product %s created successfully (new id is %s)\n", product.Name, newId)
+	fmt.Printf("Product %s created successfully (new id is %s)\n", product.Name, newId)
 
 	// return the id of the new row
 	return newId, nil
@@ -91,7 +91,7 @@ func (m *ProductRepository) Update(id string, product *entities.ProductRequest) 
 
 	_, err := m.Db.Exec("CALL products_update($1, $2, $3, $4, $5, $6)", id, product.Name, product.Description, product.Price, product.Image, product.Sku)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Print(err)
 		return nil, err
 	}
 
@@ -103,7 +103,7 @@ func (m *ProductRepository) UpdatePrice(id string, product *entities.ProductPric
 	
 	res, err := m.Db.Exec("CALL products_update_price($1, $2)", id, product.Price)
 	if err != nil {
-		log.Fatal(err, res)
+		fmt.Print(err, res)
 		return nil, err
 	}
 	return m.GetById(id)
@@ -113,7 +113,7 @@ func (m *ProductRepository) UpdatePrice(id string, product *entities.ProductPric
 func (m *ProductRepository) UpdateImage(id string, product *entities.ProductImageRequest) (*entities.Product, error) {
 	_, err := m.Db.Exec("CALL products_update_image($1, $2)", id, product.Image)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Print(err)
 		return nil, err
 	}
 	return m.GetById(id)
@@ -123,7 +123,7 @@ func (m *ProductRepository) UpdateImage(id string, product *entities.ProductImag
 func (m *ProductRepository) Delete(id string) bool {
 	_, err := m.Db.Exec("DELETE FROM products WHERE id = $1", id)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Print(err)
 		return false
 	}
 	return true

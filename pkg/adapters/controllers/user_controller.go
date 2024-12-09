@@ -24,7 +24,7 @@ func (uc *UserController) Login(c *gin.Context) {
 
 	AddRequestHeader(c)
 
-	user, err := uc.UserInteractor.GetByUsername(input.Username)
+	user, err := uc.UserInteractor.GetUserByUsername(input.Username)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})

@@ -3,7 +3,6 @@ package controllers
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -99,7 +98,7 @@ func (uc *ProductController) Update(c *gin.Context) {
 	var product *entities.ProductRequest
 	
 	if err := c.ShouldBind(&product); err != nil {
-		log.Fatal(err)
+		fmt.Print(err)
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		return
 	}
@@ -178,8 +177,8 @@ func (uc *ProductController) UpdateImage(c *gin.Context){
 	file, err := c.FormFile("image")
    
 	if err != nil {
-	  log.Println("Error in uploading Image : ", err)
-	  c.JSON(http.StatusInternalServerError, gin.H{"status": "failed", "data": nil, "msg": "update product failed"})
+		fmt.Print("Error in uploading Image : ", err)
+	  	c.JSON(http.StatusInternalServerError, gin.H{"status": "failed", "data": nil, "msg": "update product failed"})
 	}
 	
 	 uniqueId := utils.CreateNewUUID()
@@ -196,7 +195,7 @@ func (uc *ProductController) UpdateImage(c *gin.Context){
 	 err = c.SaveUploadedFile(file, fmt.Sprintf("./images/%s", imageName))
 	
 	 if err != nil {
-	  log.Println("Error in saving Image :", err)
+		fmt.Print("Error in saving Image :", err)
 	  c.JSON(http.StatusInternalServerError, gin.H{"status": "failed", "msg": "Error in saving Image"})
 	 }
 	
@@ -224,7 +223,7 @@ func (uc *ProductController) UpdateImage(c *gin.Context){
 		 c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		 return
 	 }
-	 log.Println("UpdateImage res :", res)
+	fmt.Print("UpdateImage res :", res)
 
 
 	 c.JSON(http.StatusCreated, gin.H{"status": "success", "data": "Image uploaded successfully", "msg": data})

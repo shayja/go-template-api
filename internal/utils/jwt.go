@@ -3,24 +3,24 @@ package utils
 import (
 	"errors"
 	"fmt"
-	"os"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/shayja/go-template-api/config"
 	"github.com/shayja/go-template-api/pkg/entities"
 	"github.com/shayja/go-template-api/pkg/usecases"
 )
 
-var privateKey = []byte(os.Getenv("JWT_PRIVATE_KEY"))
+var privateKey = []byte(config.Config("ACCESS_TOKEN_SECRET"))
 
-type JwtHelper struct {
+type JwtUtils struct {
     UserInteractor usecases.UserInteractor
 }
 func GenerateJWT(user *entities.User) (string, error) {
-	tokenTTL, _ := strconv.Atoi(os.Getenv("TOKEN_TTL"))
+	tokenTTL, _ := strconv.Atoi(config.Config("TOKEN_TTL"))
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"id":  user.Id,
 		"iat": time.Now().Unix(),
@@ -46,7 +46,7 @@ func ValidateJWT(context *gin.Context) error {
 }
 
 
-func(m *JwtHelper) CurrentUser(context *gin.Context) (*entities.User, error) {
+func(m *JwtUtils) CurrentUser(context *gin.Context) (*entities.User, error) {
 	err := ValidateJWT(context)
 	if err != nil {
 		return nil, err

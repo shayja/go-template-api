@@ -4,11 +4,9 @@ package db
 import (
 	"database/sql"
 	"fmt"
-	"log"
-	"os"
 
-	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
+	"github.com/shayja/go-template-api/config"
 )
 
 type DbInfo struct {
@@ -21,19 +19,15 @@ type DbInfo struct {
 }
 
 func OpenDBConnection() (*sql.DB) {
-
-    if err := godotenv.Load(); err != nil {
-        log.Fatalf("Error getting env, not comming through %v", err)
-    }
     
     v := DbInfo{
         // Read the connection propertied from the env variables.
-        Host:     os.Getenv("DB_HOST"),
-        Port:     os.Getenv("DB_PORT"),
-        User:     os.Getenv("DB_USER"),
-        Password: os.Getenv("DB_PASSWORD"),
-        DBName:   os.Getenv("DB_NAME"),
-        SSLMode:  os.Getenv("SSL_MODE"),
+        Host:     config.Config("DB_HOST"),
+        Port:     config.Config("DB_PORT"),
+        User:     config.Config("DB_USER"),
+        Password: config.Config("DB_PASSWORD"),
+        DBName:   config.Config("DB_NAME"),
+        SSLMode:  config.Config("SSL_MODE"),
     }
 
     // Format the connection string to the database
@@ -42,14 +36,14 @@ func OpenDBConnection() (*sql.DB) {
     // Establish a connection to the PostgreSQL database
     db, err := sql.Open("postgres", connectionString)
     if err != nil {
-        log.Fatal("Error connecting to database:", err)
+        fmt.Print("Error connecting to database:", err)
         panic(err)
     }
 
     // checks if we are connected to db
     err = db.Ping()
     if err != nil {
-        log.Fatal("Ping database error:", err)
+        fmt.Print("Ping database error:", err)
         panic(err)
     }
 
