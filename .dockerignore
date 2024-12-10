@@ -1,0 +1,13 @@
+
+.git
+.vscode
+.gitignore
+.gitattributes
+Makefile
+LICENSE
+README.md
+vendor/
+**/docker-compose*
+# Exclude "build-time" ignore files.
+.dockerignore
+.gcloudignore

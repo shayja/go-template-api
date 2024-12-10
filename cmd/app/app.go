@@ -13,6 +13,7 @@ import (
 	productrepo "github.com/shayja/go-template-api/internal/adapters/repositories/product"
 	userrepo "github.com/shayja/go-template-api/internal/adapters/repositories/user"
 	"github.com/shayja/go-template-api/internal/usecases"
+	"github.com/shayja/go-template-api/pkg/constants"
 	"github.com/shayja/go-template-api/pkg/frameworks/db"
 )
 
@@ -31,7 +32,7 @@ func (app *App) Routes() {
 	router.SetTrustedProxies([]string{"127.0.0.1"})
 
 	// Set the api base url.
-	baseUrl := fmt.Sprintf("%s/v%d/", Prefix, ApiVersion)
+	baseUrl := fmt.Sprintf("%s/v%d/", constants.ApiPrefix, constants.ApiVersion)
 	
 	// Register the User module
 	userRepo := &userrepo.UserRepository{Db: app.DB}
