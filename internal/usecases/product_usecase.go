@@ -2,7 +2,7 @@
 package usecases
 
 import (
-	"github.com/shayja/go-template-api/pkg/entities"
+	"github.com/shayja/go-template-api/internal/entities"
 )
 
 type ProductRepository interface {

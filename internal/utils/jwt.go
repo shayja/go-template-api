@@ -10,8 +10,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/shayja/go-template-api/config"
-	"github.com/shayja/go-template-api/pkg/entities"
-	"github.com/shayja/go-template-api/pkg/usecases"
+	"github.com/shayja/go-template-api/internal/entities"
+	"github.com/shayja/go-template-api/internal/usecases"
 )
 
 var privateKey = []byte(config.Config("ACCESS_TOKEN_SECRET"))

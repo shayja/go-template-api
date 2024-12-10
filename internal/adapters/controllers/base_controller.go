@@ -1,4 +1,4 @@
-// adapters/controllers/base_controller.go
+// internal/adapters/controllers/base_controller.go
 package controllers
 
 import (

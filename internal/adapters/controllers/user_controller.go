@@ -1,13 +1,13 @@
-// adapters/controllers/user_controller.go
+// internal/adapters/controllers/user_controller.go
 package controllers
 
 import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/shayja/go-template-api/internal/entities"
+	"github.com/shayja/go-template-api/internal/usecases"
 	"github.com/shayja/go-template-api/internal/utils"
-	"github.com/shayja/go-template-api/pkg/entities"
-	"github.com/shayja/go-template-api/pkg/usecases"
 )
 
 type UserController struct {

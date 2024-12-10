@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/shayja/go-template-api/internal/entities"
 	"github.com/shayja/go-template-api/internal/utils"
-	"github.com/shayja/go-template-api/pkg/entities"
 )
 
 

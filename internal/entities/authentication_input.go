@@ -1,4 +1,4 @@
-// entities/authentication_input.go
+// internal/entities/authentication_input.go
 package entities
 
 type AuthenticationInput struct {

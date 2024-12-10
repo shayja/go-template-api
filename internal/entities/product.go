@@ -1,4 +1,4 @@
-// entities/product.go
+// internal/entities/product.go
 package entities
 
 import (

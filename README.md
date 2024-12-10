@@ -18,7 +18,7 @@ Database:
 
 1. Create a new PostgreSQL database named "shop".
 2. Add a new db user called "appuser" and assign a login password.
-3. Execute the SQL script located in the /scripts directory of the project on the "shop" database.
+3. Execute the SQL script located in the /migrations directory of the project on the "shop" database.
 4. Update your database credentials in the .env.local file, then rename it to .env. Ensure the file is placed in the root folder.
 5. Adjust the configuration values to match the details of your "appuser" and the database root admin user.
 

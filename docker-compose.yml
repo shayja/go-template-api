@@ -25,7 +25,7 @@ services:
       - ${POSTGRES_PORT}:5432
     volumes:
       - database_postgres:/var/lib/postgresql/data
-      - ./scripts/products.sql:/docker-entrypoint-initdb.d/products.sql
+      - ./migrations/001_create_tables.sql:/docker-entrypoint-initdb.d/products.sql
     networks:
       - fullstack
 

@@ -7,12 +7,13 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/shayja/go-template-api/config"
-	"github.com/shayja/go-template-api/internal/middleware"
-	"github.com/shayja/go-template-api/pkg/adapters/controllers"
-	productrepo "github.com/shayja/go-template-api/pkg/adapters/repositories/product"
-	userrepo "github.com/shayja/go-template-api/pkg/adapters/repositories/user"
+	"github.com/shayja/go-template-api/internal/adapters/controllers"
+	"github.com/shayja/go-template-api/internal/adapters/middleware"
+
+	productrepo "github.com/shayja/go-template-api/internal/adapters/repositories/product"
+	userrepo "github.com/shayja/go-template-api/internal/adapters/repositories/user"
+	"github.com/shayja/go-template-api/internal/usecases"
 	"github.com/shayja/go-template-api/pkg/frameworks/db"
-	"github.com/shayja/go-template-api/pkg/usecases"
 )
 
 type App struct {

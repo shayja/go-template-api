@@ -4,7 +4,7 @@ package usecases
 import (
 	"strings"
 
-	"github.com/shayja/go-template-api/pkg/entities"
+	"github.com/shayja/go-template-api/internal/entities"
 )
 
 type UserRepository interface {

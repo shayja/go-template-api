@@ -1,4 +1,4 @@
-// adapters/controllers/product_controller.go
+// internal/adapters/controllers/product_controller.go
 package controllers
 
 import (
@@ -8,9 +8,9 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/shayja/go-template-api/internal/entities"
+	"github.com/shayja/go-template-api/internal/usecases"
 	"github.com/shayja/go-template-api/internal/utils"
-	"github.com/shayja/go-template-api/pkg/entities"
-	"github.com/shayja/go-template-api/pkg/usecases"
 )
 
 type ProductController struct {
