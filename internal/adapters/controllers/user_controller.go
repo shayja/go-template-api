@@ -6,12 +6,20 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/shayja/go-template-api/internal/entities"
-	"github.com/shayja/go-template-api/internal/usecases"
 	"github.com/shayja/go-template-api/internal/utils"
 )
 
+type UserInteractor interface {
+	GetUserById(id string) (*entities.User, error)
+	GetUserByUsername(username string) (*entities.User, error)
+	GetUserByMobile(mobile string) (string, error)
+	ValidatePassword(user *entities.User, password string) error
+	RegisterUser(request *entities.UserRequest) (*entities.User, error) 
+}
+
+
 type UserController struct {
-    UserInteractor usecases.UserInteractor
+    UserInteractor UserInteractor
 }
 
 func (uc *UserController) Login(c *gin.Context) {

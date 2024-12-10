@@ -36,8 +36,9 @@ func (app *App) Routes() {
 	
 	// Register the User module
 	userRepo := &userrepo.UserRepository{Db: app.DB}
-    userInteractor := usecases.UserInteractor{UserRepository: userRepo}
-    userController := controllers.UserController{UserInteractor: userInteractor}
+	userInteractor := &usecases.UserInteractor{UserRepository: userRepo}
+	userController := controllers.UserController{UserInteractor: userInteractor}
+
 	// Configure User Routes
 	publicRoutes := router.Group(fmt.Sprintf("%s/auth", baseUrl))
 	publicRoutes.POST("/register", userController.RegisterUser)
