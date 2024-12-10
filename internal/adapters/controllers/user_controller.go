@@ -32,6 +32,17 @@ func (uc *UserController) Login(c *gin.Context) {
 
 	AddRequestHeader(c)
 
+	if len(input.Username) < 2 {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": "Username is required"})
+		return
+	}
+
+	if len(input.Password) < 2 {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": "Password is required"})
+		return
+	}
+
+
 	user, err := uc.UserInteractor.GetUserByUsername(input.Username)
 
 	if err != nil {
@@ -63,6 +74,11 @@ func (uc *UserController) RegisterUser(c *gin.Context) {
 	if err := c.ShouldBindJSON(&userReq); err != nil {
 
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
+		return
+	}
+
+	if len(userReq.Username) < 2 {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": "Username is required"})
 		return
 	}
 
