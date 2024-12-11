@@ -3,15 +3,15 @@ name: Go
 
 on:
   push:
-    branches: ["main"]
+    branches: [main]
+	
   pull_request:
-    branches: ["main"]
-
+    branches: [main]
+env: 
+  BUILD_CONFIGURATION: Release
 jobs:
   build:
     runs-on: ubuntu-latest
-    env: 
-      BUILD_CONFIG: dev-env
     steps:
       - uses: actions/checkout@v4
 
