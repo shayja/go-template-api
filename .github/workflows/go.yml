@@ -21,10 +21,17 @@ jobs:
         run: go build -v ./...
 
       - name: Set up .env variables from secrets
+        env:
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         run: |
-          echo "DB_HOST=${{ secrets.DB_HOST }}" >> $GITHUB_ENV
-          echo "DB_USER=${{ secrets.DB_USER }}" >> $GITHUB_ENV
-          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> $GITHUB_ENV
+          echo "DB_HOST=${DB_HOST}" >> .env.test
+          echo "DB_USER=${DB_USER}" >> .env.test
+          echo "DB_PASSWORD=${DB_PASSWORD}" >> .env.test
+
+      - name: Verify .env.test contents (debugging only)
+        run: cat .env.test
 
       - name: Test
         run: go test -v ./...
