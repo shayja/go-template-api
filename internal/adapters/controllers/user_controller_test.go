@@ -19,7 +19,8 @@ import (
 
 func init() {
     // Load the .env file before running tests
-    err := godotenv.Load("../../../.env")
+    err := godotenv.Load()
+    //err := godotenv.Load("../../../.env")
     if err != nil {
        panic(err)
     }
