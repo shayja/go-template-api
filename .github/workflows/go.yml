@@ -20,10 +20,8 @@ jobs:
       - name: Build
         run: go build -v ./...
 
-      - name: Dump GitHub context
-        env:
-          GITHUB_CONTEXT: ${{ toJson(env) }}
-        run: echo "$GITHUB_CONTEXT"
+      - name: Dump GitHub variables
+        run: echo ${{ secrets.SECRET_KEY }}
 
       - name: Test
         run: go test -v ./...
