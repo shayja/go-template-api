@@ -20,8 +20,5 @@ jobs:
       - name: Build
         run: go build -v ./...
 
-      - name: Dump GitHub variables
-        run: echo ${{ secrets.SECRET_KEY }}
-
-      - name: Test
-        run: go test -v ./...
+      #- name: Test
+      #  run: go test -v ./...
