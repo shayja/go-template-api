@@ -40,14 +40,14 @@ jobs:
           echo "DB_PORT=${DB_PORT}" >> .env.test
           echo "DB_USER=${DB_USER}" >> .env.test
           echo "DB_PASSWORD=${DB_PASSWORD}" >> .env.test
-          echo "DB_NAME=${secrets.DB_NAME}" >> .env.test
-          echo "SSL_MODE=${secrets.SSL_MODE}" >> .env.test
-          echo "POSTGRES_PORT=${secrets.POSTGRES_PORT}" >> .env.test
-          echo "PGADMIN_DEFAULT_EMAIL=${secrets.PGADMIN_DEFAULT_EMAIL}" >> .env.test
-          echo "PGADMIN_DEFAULT_PASSWORD=${secrets.PGADMIN_DEFAULT_PASSWORD}" >> .env.test
-          echo "TOKEN_TTL=${secrets.TOKEN_TTL}" >> .env.test
-          echo "ACCESS_TOKEN_SECRET=${secrets.ACCESS_TOKEN_SECRET}" >> .env.test
-          echo "SERVER_PORT=${secrets.SERVER_PORT}" >> .env.test
+          echo "DB_NAME=${DB_NAME}" >> .env.test
+          echo "SSL_MODE=${SSL_MODE}" >> .env.test
+          echo "POSTGRES_PORT=${POSTGRES_PORT}" >> .env.test
+          echo "PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}" >> .env.test
+          echo "PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}" >> .env.test
+          echo "TOKEN_TTL=${TOKEN_TTL}" >> .env.test
+          echo "ACCESS_TOKEN_SECRET=${ACCESS_TOKEN_SECRET}" >> .env.test
+          echo "SERVER_PORT=${SERVER_PORT}" >> .env.test
 
       - name: Verify .env.test contents (debugging only)
         run: cat .env.test
