@@ -9,21 +9,19 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/shayja/go-template-api/internal/entities"
 )
 
-
-func init() {
-    // Load the .env file before running tests
-    err := godotenv.Load("../../../.env.test")
-    if err != nil {
-       panic(err)
-    }
-}
+// func init() {
+//     // Load the .env file before running tests
+//     err := godotenv.Load("../../../.env.test")
+//     if err != nil {
+//        panic(err)
+//     }
+// }
 
 // MockUserInteractor mocks the UserInteractor
 type MockUserInteractor struct {
