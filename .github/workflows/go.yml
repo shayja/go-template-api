@@ -36,6 +36,7 @@ jobs:
           ACCESS_TOKEN_SECRET: ${{ secrets.ACCESS_TOKEN_SECRET }}
           SERVER_PORT: ${{ secrets.SERVER_PORT }}
         run: |
+          echo -n "" > .env.test
           echo "DB_HOST=${DB_HOST}" >> .env.test
           echo "DB_PORT=${DB_PORT}" >> .env.test
           echo "DB_USER=${DB_USER}" >> .env.test
