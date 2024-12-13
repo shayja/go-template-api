@@ -1,4 +1,4 @@
-// adapters/middleware/auth_middleware.go
+// internal/adapters/middleware/auth_middleware.go
 package middleware
 
 import (
@@ -6,12 +6,13 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/shayja/go-template-api/internal/utils"
 )
 
-func AuthRequired() gin.HandlerFunc {
+type JWTValidator func(context *gin.Context) error
+
+func AuthRequired(validateJWT JWTValidator) gin.HandlerFunc {
 	return func(context *gin.Context) {
-		err := utils.ValidateJWT(context)
+		err := validateJWT(context)
 		if err != nil {
 			context.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required"})
 			fmt.Println(err)

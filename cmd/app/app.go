@@ -9,6 +9,7 @@ import (
 	"github.com/shayja/go-template-api/config"
 	"github.com/shayja/go-template-api/internal/adapters/controllers"
 	"github.com/shayja/go-template-api/internal/adapters/middleware"
+	"github.com/shayja/go-template-api/internal/utils"
 
 	productrepo "github.com/shayja/go-template-api/internal/adapters/repositories/product"
 	userrepo "github.com/shayja/go-template-api/internal/adapters/repositories/user"
@@ -54,7 +55,7 @@ func (app *App) Routes() {
 	// Configure Product Routes
 	protectedRoutes := router.Group(fmt.Sprintf("%s/product", baseUrl))
 	// Set Auth for the module routes
-	protectedRoutes.Use(middleware.AuthRequired())
+	protectedRoutes.Use(middleware.AuthRequired(utils.ValidateJWT))
 
 	// Set the product module routes.
 	protectedRoutes.POST("", productController.Create)

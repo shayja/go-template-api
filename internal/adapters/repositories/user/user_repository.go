@@ -14,7 +14,10 @@ import (
 )
 
 type UserRepository struct {
-	Db *sql.DB
+	Db                *sql.DB
+	HashPassword  func(password string) (string, error)
+	GenerateUUID  func() string
+	GenerateTimestamp func() time.Time
 }
 
 // Get a single item by id
@@ -81,15 +84,17 @@ func (m *UserRepository) GetUserByMobile(mobile string) (string, error) {
 	return userId, nil
 }
 
+
 func (m *UserRepository) CreateUser(user *entities.User) (*entities.User, error) {
-	err := OnBeforeSave(user)
+	err := m.OnBeforeSave(user)
 	if err != nil {
 		return nil, err
 	}
 
 	var lastInsertId string
-	db_err := m.Db.QueryRow("CALL users_insert($1, $2, $3, $4, $5, $6, $7)", user.Username, user.Password, user.Mobile, user.Name, user.Email, time.Now(), user.Id).Scan(&lastInsertId)
-	
+	db_err := m.Db.QueryRow("CALL users_insert($1, $2, $3, $4, $5, $6, $7)",
+		user.Username, user.Password, user.Mobile, user.Name, user.Email, user.CreatedAt, user.Id).Scan(&lastInsertId)
+
 	if db_err != nil {
 		fmt.Print(db_err)
 		return user, db_err
@@ -101,14 +106,16 @@ func (m *UserRepository) CreateUser(user *entities.User) (*entities.User, error)
 	return user, nil
 }
 
-func OnBeforeSave(user *entities.User) error {
+func (m *UserRepository) OnBeforeSave(user *entities.User) error {
 
-	passwordHash, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-	if err != nil {
-		return err
+	if user.CreatedAt.IsZero() {
+		user.CreatedAt = m.GenerateTimestamp()
 	}
-	user.Id = utils.CreateNewUUID().String()
-	user.Password = string(passwordHash)
+	user.Id = m.GenerateUUID()
+	passwordHash, err := m.HashPassword(user.Password)
+	if err == nil && len(passwordHash) > 0 {
+		user.Password = passwordHash
+	}
 	user.Username = html.EscapeString(strings.TrimSpace(user.Username))
 	return nil
 }
@@ -116,4 +123,21 @@ func OnBeforeSave(user *entities.User) error {
 
 func (m *UserRepository) ValidatePassword(user *entities.User, password string) error {
 	return bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+}
+
+func HashPassword(password string) (string, error) {
+	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		fmt.Print(err)
+		return "", err
+	}
+	return string(passwordHash), nil;
+}
+
+func GenerateUUID() (string) {
+	return utils.CreateNewUUID().String()
+}
+
+func GenerateTimestamp() (time.Time) {
+	return time.Now()
 }
