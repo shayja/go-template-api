@@ -239,7 +239,13 @@ func (uc *ProductController) Delete(c *gin.Context) {
 		return
 	}
 	
-	res := uc.ProductInteractor.Delete(uri.Id)
+	res, err := uc.ProductInteractor.Delete(uri.Id)
+
+	if err != nil {
+		fmt.Print("Error in Delete product: ", err)
+	  	c.JSON(http.StatusInternalServerError, gin.H{"status": "failed", "data": nil, "msg": "Delete product failed"})
+	}
+	
 	if res {
 		c.JSON(http.StatusOK, gin.H{"status": "success", "msg": nil})
 		return

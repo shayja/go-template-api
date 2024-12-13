@@ -12,7 +12,7 @@ type ProductRepository interface {
 	Update(id string, product *entities.ProductRequest) (*entities.Product, error)
 	UpdatePrice(id string, product *entities.ProductPriceRequest) (*entities.Product, error)
 	UpdateImage(id string, product *entities.ProductImageRequest) (*entities.Product, error)
-	Delete(id string) bool
+	Delete(id string) (bool, error)
 }
 	
 type ProductInteractor struct {
@@ -43,7 +43,7 @@ func (uc *ProductInteractor) UpdateImage(id string, product *entities.ProductIma
 	return uc.ProductRepository.UpdateImage(id, product)
 }
 
-func (uc *ProductInteractor) Delete(id string) bool {
+func (uc *ProductInteractor) Delete(id string) (bool, error) {
 	return uc.ProductRepository.Delete(id)
 }
 

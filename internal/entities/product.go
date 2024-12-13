@@ -9,7 +9,7 @@ type Product struct {
 	Id 			string	`json:"id" validate:"required"`
 	Name        string	`json:"name" validate:"required"`
 	Description string	`json:"description" validate:"required"`
-	Image       string	`json:"image" validate:"required"`
+	ImageURL    string	`json:"image" validate:"required"`
 	Price       float64	`json:"price" validate:"required"`
 	Sku         string	`json:"sku" validate:"required"`
 	CreatedAt 	time.Time `json:"created_at"`
@@ -19,7 +19,7 @@ type Product struct {
 type ProductRequest struct {
 	Name        string	`json:"name" validate:"required"`
 	Description string	`json:"description" validate:"required"`
-	Image       string	`json:"image" validate:"required"`
+	ImageURL    string	`json:"image" validate:"required"`
 	Price       float64	`json:"price" validate:"required"`
 	Sku         string	`json:"sku" validate:"required"`
 }
@@ -34,5 +34,5 @@ type ProductPriceRequest struct {
 }
 
 type ProductImageRequest struct {
-	Image       string `json:"image" validate:"required"`
+	ImageURL	string `json:"image" validate:"required"`
 }
