@@ -3,11 +3,11 @@ package repositories
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 	"time"
 
 	"github.com/shayja/go-template-api/internal/entities"
+	"github.com/shayja/go-template-api/internal/errors"
 	"github.com/shayja/go-template-api/internal/utils"
 )
 
@@ -41,7 +41,7 @@ func (m *ProductRepository) GetAll(page int) ([]*entities.Product, error) {
 			err := query.Scan(&product.Id, &product.Name, &product.Description, &product.ImageURL, &product.Price, &product.Sku, &product.UpdatedAt, &product.CreatedAt)
 			if err != nil {
 				fmt.Print(err)
-				return nil, errors.New("database error")
+				return nil, errors.ErrDatabase
 			}
 			products = append(products, product)
 		}
@@ -64,7 +64,7 @@ func (m *ProductRepository) GetById(id string) (*entities.Product, error) {
 			err := query.Scan(&product.Id, &product.Name, &product.Description, &product.ImageURL, &product.Price, &product.Sku, &product.UpdatedAt, &product.CreatedAt)
 			if err != nil {
 				fmt.Print(err)
-				return nil, errors.New("database error")
+				return nil, errors.ErrDatabase
 			}
 		}
 	}
@@ -78,7 +78,7 @@ func (m *ProductRepository) Create(product *entities.ProductRequest) (string, er
 	err := m.Db.QueryRow("CALL products_insert($1, $2, $3, $4, $5, $6, $7)", product.Name, product.Description, product.Price, product.ImageURL, product.Sku, time.Now(), newId).Scan(&newId)
 	if err != nil {
 		fmt.Print(err)
-		return "", errors.New("database error")
+		return "", errors.ErrDatabase
 	}
 
 	fmt.Printf("Product %s created successfully (new id is %s)\n", product.Name, newId)
@@ -93,7 +93,7 @@ func (m *ProductRepository) Update(id string, product *entities.ProductRequest) 
 	_, err := m.Db.Exec("CALL products_update($1, $2, $3, $4, $5, $6)", id, product.Name, product.Description, product.Price, product.ImageURL, product.Sku)
 	if err != nil {
 		fmt.Print(err)
-		return nil, errors.New("database error")
+		return nil, errors.ErrDatabase
 	}
 
 	return m.GetById(id)
@@ -105,7 +105,7 @@ func (m *ProductRepository) UpdatePrice(id string, product *entities.ProductPric
 	res, err := m.Db.Exec("CALL products_update_price($1, $2)", id, product.Price)
 	if err != nil {
 		fmt.Print(err, res)
-		return nil, errors.New("database error")
+		return nil, errors.ErrDatabase
 	}
 	return m.GetById(id)
 }
@@ -115,7 +115,7 @@ func (m *ProductRepository) UpdateImage(id string, product *entities.ProductImag
 	_, err := m.Db.Exec("CALL products_update_image($1, $2)", id, product.ImageURL)
 	if err != nil {
 		fmt.Print(err)
-		return nil, errors.New("database error")
+		return nil, errors.ErrDatabase
 	}
 	return m.GetById(id)
 }
@@ -125,7 +125,7 @@ func (m *ProductRepository) Delete(id string) (bool, error) {
 	_, err := m.Db.Exec("DELETE FROM products WHERE id = $1", id)
 	if err != nil {
 		fmt.Print(err)
-		return false, errors.New("database error")
+		return false, errors.ErrDatabase
 	}
 	return true, nil
 }

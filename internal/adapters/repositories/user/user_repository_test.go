@@ -81,15 +81,17 @@ func TestGetUserByMobile_Success(t *testing.T) {
 	defer db.Close()
 
 	// Mock the database query
-	rows := sqlmock.NewRows([]string{"id"}).AddRow("1")
+	rows := sqlmock.NewRows([]string{"id", "username", "password", "mobile", "name", "email", "updated_at", "created_at"}).
+		AddRow("1", "testuser", "hashedpassword", "123456789", "Test User", "test@example.com", time.Now(), time.Now())
 	mock.ExpectQuery("SELECT \\* FROM get_user_by_mobile\\(\\$1\\)").
 		WithArgs("123456789").
 		WillReturnRows(rows)
 
 	// Test the GetUserByMobile method
-	userId, err := repo.GetUserByMobile("123456789")
+	user, err := repo.GetUserByMobile("123456789")
 	assert.NoError(t, err)
-	assert.Equal(t, "1", userId)
+	assert.Equal(t, "1", user.Id)
+	assert.Equal(t, "123456789", user.Mobile)
 }
 
 func TestCreateUser_Success(t *testing.T) {

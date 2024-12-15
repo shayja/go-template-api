@@ -26,4 +26,7 @@ var (
     ErrUserNotFound = New("USER_NOT_FOUND", "User not found")
     ErrInvalidInput = New("INVALID_INPUT", "Invalid input provided")
     ErrDatabase     = New("DATABASE_ERROR", "Database operation failed")
+    ErrInvalidOTP = New("INVALID_OTP", "Invalid OTP Code")
+    ErrOTPNotFound = New("OTP_NOT_FOUND", "OTP not found")
+    ErrInvalidMobile = New("INVALID_MOBILE", "invalid mobile number")
 )

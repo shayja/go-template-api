@@ -33,6 +33,19 @@ GRANT INSERT, SELECT, UPDATE, DELETE ON TABLE users TO appuser;
 ALTER TABLE IF EXISTS users OWNER to appuser;
 
 
+CREATE TABLE otpcodes
+(
+    id uuid NOT NULL,
+    user_id uuid NOT NULL,
+    mobile character varying(50),
+    otp character varying(10),
+    expiration timestamp without time zone,
+    created_at timestamp without time zone,
+    CONSTRAINT otpcodes_pkey PRIMARY KEY (id)
+);
+ALTER TABLE otpcodes OWNER to appuser;
+GRANT ALL ON TABLE users TO appuser;
+
 --Create Functions
 
 CREATE OR REPLACE FUNCTION get_product(productid uuid)
@@ -98,6 +111,25 @@ LIMIT 1
 $BODY$;
 
 ALTER FUNCTION get_user_by_username(character varying) OWNER TO appuser;
+
+
+CREATE OR REPLACE FUNCTION get_user_by_mobile(
+	p_mobile character varying)
+    RETURNS SETOF users 
+    LANGUAGE 'sql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+    ROWS 1000
+
+AS $BODY$
+SELECT id, username, passhash, mobile, name, email, updated_at, created_at
+FROM users WHERE mobile=p_mobile
+LIMIT 1
+$BODY$;
+
+ALTER FUNCTION get_user_by_mobile(character varying) OWNER TO appuser;
+
+
 
 --Create Procedures
 
@@ -208,6 +240,33 @@ END;
 $BODY$;
 ALTER PROCEDURE users_insert(text, text, text, text, text, timestamp without time zone, uuid) OWNER TO appuser;
 
+
+
+CREATE OR REPLACE PROCEDURE otpcodes_insert(
+	IN p_user_id uuid,
+	IN p_mobile text,
+	IN p_otp text,
+	IN p_expiration timestamp without time zone,
+	IN p_create_date timestamp without time zone,
+	INOUT next_id uuid)
+LANGUAGE 'plpgsql'
+AS $BODY$
+BEGIN
+	
+    INSERT INTO otpcodes (id, user_id, mobile, otp, expiration, created_at)
+    SELECT gen_random_uuid(),
+        p_user_id,
+        p_mobile,
+        p_otp,
+        p_expiration,
+	p_create_date
+    RETURNING id INTO next_id;
+
+    COMMIT;
+
+END;
+$BODY$;
+ALTER PROCEDURE otpcodes_insert(uuid, text, text, timestamp without time zone, timestamp without time zone, uuid) OWNER TO appuser;
 
 
 --DUMMY DATA

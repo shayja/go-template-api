@@ -41,12 +41,12 @@ func (m *MockUserInteractor) GetUserByUsername(username string) (*entities.User,
     return args.Get(0).(*entities.User), args.Error(1)
 }
 
-func (m *MockUserInteractor) GetUserByMobile(mobile string) (string, error) {
+func (m *MockUserInteractor) GetUserByMobile(mobile string) (*entities.User, error) {
 	args := m.Called(mobile)
     if args.Get(0) == nil {
-        return "", args.Error(1)
+        return nil, args.Error(1)
     }
-    return args.Get(0).(string), args.Error(1)
+    return args.Get(0).(*entities.User), args.Error(1)
 }
 
 
@@ -61,6 +61,38 @@ func (m *MockUserInteractor) RegisterUser(userReq *entities.UserRequest) (*entit
         return nil, args.Error(1)
     }
     return args.Get(0).(*entities.User), args.Error(1)
+}
+
+func (m *MockUserInteractor) RequestOTP(userReq *entities.OtpRequest) (error) {
+	args := m.Called(userReq)
+    if args.Get(0) == nil {
+        return nil
+    }
+    return args.Error(0)
+}
+
+func (m *MockUserInteractor) GenerateAndSendOTP(mobile string) error {
+	args := m.Called(mobile)
+    if args.Get(0) == nil {
+        return nil
+    }
+    return args.Error(0)
+}
+
+func (m *MockUserInteractor) VerifyOTP(mobile string, otp string) (*entities.User, error) {
+	args := m.Called(mobile, otp)
+    if args.Get(0) == nil {
+        return nil, args.Error(1)
+    }
+    return args.Get(0).(*entities.User), args.Error(1)
+}
+
+func (m *MockUserInteractor) ResendOTP(mobile string) error  {
+	args := m.Called(mobile)
+    if args.Get(0) == nil {
+        return nil
+    }
+    return args.Error(0)
 }
 
 func TestLoginSuccess(t *testing.T) {

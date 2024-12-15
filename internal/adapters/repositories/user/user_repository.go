@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/shayja/go-template-api/internal/entities"
+	"github.com/shayja/go-template-api/internal/errors"
 	"github.com/shayja/go-template-api/internal/utils"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -60,25 +61,56 @@ func (m *UserRepository) GetUserByUsername(username string) (*entities.User, err
 	return user, nil
 }
 
-func (m *UserRepository) GetUserByMobile(mobile string) (string, error) {
+func (m *UserRepository) GetUserByMobile(mobile string) (*entities.User, error) {
 	SQL := `SELECT * FROM get_user_by_mobile($1)`
 	query, err := m.Db.Query(SQL, mobile)
-	userId := ""
 	if err != nil {
 		fmt.Print(err)
-		return userId, err
+		return nil, err
 	}
 
 	if query != nil {
+		user := &entities.User{}
 		for query.Next() {
-			err := query.Scan(&userId)
+			err := query.Scan(&user.Id, &user.Username, &user.Password, &user.Mobile, &user.Name, &user.Email, &user.UpdatedAt, &user.CreatedAt)
 			if err != nil {
 				fmt.Print(err)
-				return userId, err
+				return nil, err
 			}
+			return user, nil
 		}
+		
 	}
-	return userId, nil
+	return nil, nil
+}
+
+func (m *UserRepository) SaveOTP(otp *entities.OTP) error {
+	newId := utils.CreateNewUUID().String()
+	err := m.Db.QueryRow("CALL otpcodes_insert($1, $2, $3, $4, $5, $6)", otp.UserId, otp.Mobile, otp.OTP, otp.Expiration, time.Now(), newId).Scan(&newId)
+	if err != nil {
+		fmt.Print(err)
+		return errors.ErrDatabase
+	}
+
+	fmt.Printf("otp %s created successfully (new id is %s)\n", otp.OTP, newId)
+
+	return nil
+}
+
+func (m *UserRepository) ValidateOTP(mobile string, otp string) (bool, error) {
+	SQL := `SELECT expiration FROM otpcodes WHERE mobile = $1 AND otp = $2`
+	var expiration time.Time
+	err := m.Db.QueryRow(SQL, mobile, otp).Scan(&expiration)
+	if err != nil {
+		fmt.Print(err)
+		return false, err
+	}
+
+	if time.Now().After(expiration) {
+		return false, fmt.Errorf("OTP expired")
+	}
+
+	return true, nil
 }
 
 
@@ -115,6 +147,33 @@ func (m *UserRepository) OnBeforeSave(user *entities.User) error {
 	}
 	user.Username = html.EscapeString(strings.TrimSpace(user.Username))
 	return nil
+}
+
+
+// GetOTP retrieves the OTP and expiration time for a given mobile number
+func (m *UserRepository) GetOTP(mobile string) (*entities.OTP, error) {
+	SQL := `SELECT 1 FROM otps WHERE mobile = $1`
+	query, err := m.Db.Query(SQL, mobile)
+	if err != nil {
+		fmt.Print(err)
+		return nil, err
+	}
+
+	item := &entities.OTP{}
+	if query != nil {
+		for query.Next() {
+			err := query.Scan(&item.Mobile, &item.OTP, &item.Expiration)
+			if err != nil {
+				fmt.Print(err)
+				return nil, err
+			}
+		}
+	}
+
+	if item == nil {
+		return nil, errors.ErrOTPNotFound
+	}
+	return item, nil
 }
 
 

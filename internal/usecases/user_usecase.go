@@ -2,17 +2,25 @@
 package usecases
 
 import (
+	"crypto/rand"
+	"log"
+	"math/big"
 	"strings"
+	"time"
 
 	"github.com/shayja/go-template-api/internal/entities"
+	"github.com/shayja/go-template-api/internal/errors"
 )
 
 type UserRepository interface {
 	GetUserById(id string) (*entities.User, error)
 	GetUserByUsername(username string) (*entities.User, error)
-	GetUserByMobile(mobile string) (string, error)
+	GetUserByMobile(mobile string) (*entities.User, error)
 	ValidatePassword(user *entities.User, password string) error
 	CreateUser(user *entities.User) (*entities.User, error)
+	SaveOTP(otp *entities.OTP) error
+	ValidateOTP(mobile string, otp string) (bool, error)
+	GetOTP(mobile string) (*entities.OTP, error)
 }
 
 type UserInteractor struct {
@@ -27,7 +35,7 @@ func (uc *UserInteractor) GetUserByUsername(username string) (*entities.User, er
 	return uc.UserRepository.GetUserByUsername(username)
 }
 
-func (uc *UserInteractor) GetUserByMobile(mobile string) (string, error) {
+func (uc *UserInteractor) GetUserByMobile(mobile string) (*entities.User, error) {
 	return uc.UserRepository.GetUserByMobile(mobile)
 }
 
@@ -46,3 +54,112 @@ func (uc *UserInteractor) RegisterUser(request *entities.UserRequest) (*entities
     return uc.UserRepository.CreateUser(user)
 }
 
+// GenerateAndSendOTP generates an OTP, saves it, and sends it to the user's mobile number
+func (uc *UserInteractor) GenerateAndSendOTP(mobile string) error {
+	
+	// Fetch the user associated with the mobile number
+	user, err_notfound := uc.UserRepository.GetUserByMobile(mobile)
+	if err_notfound != nil || user == nil {
+		return errors.ErrUserNotFound
+	}
+
+	// Generate a random OTP
+	otpCode := GenerateOTP()
+
+	// Set OTP expiration time (e.g., 5 minutes from now)
+	expiration := time.Now().Add(5 * time.Minute)
+
+	otp := &entities.OTP{
+		UserId: user.Id,
+		Mobile: mobile,
+		OTP: otpCode,
+		Expiration: expiration,
+		CreatedAt: time.Now(),
+	}
+	
+	// Save the OTP in the repository
+	err := uc.UserRepository.SaveOTP(otp)
+	if err != nil {
+		return err
+	}
+
+	// Send the OTP via an external service
+	err = SendSMS(mobile, otpCode)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+
+// ResendOTP resends the previously generated OTP if it is still valid, or generates and sends a new one
+func (uc *UserInteractor) ResendOTP(mobile string) error {
+	// Retrieve the existing OTP and its expiration time
+	existingOTP, err := uc.UserRepository.GetOTP(mobile)
+	if err != nil {
+		return err
+	}
+
+	// Check if the existing OTP is still valid
+	if time.Now().Before(existingOTP.Expiration) {
+		// Resend the existing OTP
+		err = SendSMS(mobile, existingOTP.OTP)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+
+	// If the existing OTP is expired, generate a new one
+	return uc.GenerateAndSendOTP(mobile)
+}
+
+// VerifyOTP validates the provided OTP for the given mobile number
+func (uc *UserInteractor) VerifyOTP(mobile string, otp string) (*entities.User, error) {
+	// Check if the OTP is valid
+	isValid, err := uc.UserRepository.ValidateOTP(mobile, otp)
+	if err != nil {
+		return nil, err
+	}
+
+	if !isValid {
+		return nil, errors.ErrInvalidOTP
+	}
+
+	// Fetch the user associated with the mobile number
+	user, err := uc.UserRepository.GetUserByMobile(mobile)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+// GenerateOTP generates a random 6-digit OTP as a string
+func GenerateOTP() string {
+	const otpLength = 6
+	otp := make([]byte, otpLength)
+
+	for i := range otp {
+		num, _ := rand.Int(rand.Reader, big.NewInt(10))
+		otp[i] = byte(num.Int64()) + '0'
+	}
+
+	return string(otp)
+}
+
+
+// SendSMS simulates sending an SMS to the user's mobile number with the OTP
+func SendSMS(mobile string, otp string) error {
+	// Validate the mobile number format (basic example, expand as needed)
+	if len(mobile) < 10 {
+		return errors.ErrInvalidMobile
+	}
+
+	// Simulate sending SMS (In production, replace this with actual SMS API calls)
+	log.Printf("Sending SMS to %s with OTP: %s", mobile, otp)
+
+	// Return nil to indicate success
+	return nil
+}
