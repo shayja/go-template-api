@@ -27,6 +27,7 @@ mocks/
 .github
 postgres
 !.env.test
+__debug*
 
 
 
