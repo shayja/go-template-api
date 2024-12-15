@@ -14,10 +14,7 @@ import (
 )
 
 type UserRepository struct {
-	Db                *sql.DB
-	HashPassword  func(password string) (string, error)
-	GenerateUUID  func() string
-	GenerateTimestamp func() time.Time
+	Db *sql.DB
 }
 
 // Get a single item by id
@@ -109,10 +106,10 @@ func (m *UserRepository) CreateUser(user *entities.User) (*entities.User, error)
 func (m *UserRepository) OnBeforeSave(user *entities.User) error {
 
 	if user.CreatedAt.IsZero() {
-		user.CreatedAt = m.GenerateTimestamp()
+		user.CreatedAt = GenerateTimestamp()
 	}
-	user.Id = m.GenerateUUID()
-	passwordHash, err := m.HashPassword(user.Password)
+	user.Id = GenerateUUID()
+	passwordHash, err := HashPassword(user.Password)
 	if err == nil && len(passwordHash) > 0 {
 		user.Password = passwordHash
 	}

@@ -22,10 +22,7 @@ func setupTest() (*sql.DB, sqlmock.Sqlmock, *UserRepository) {
 		fmt.Println("Error creating mock database:", err)
 	}
 	userRepo := &UserRepository{
-		Db:                db,
-		HashPassword:      HashPassword,
-		GenerateUUID:      GenerateUUID,
-		GenerateTimestamp: GenerateTimestamp,
+		Db: db,
 	}
 	return db, mock, userRepo
 }
