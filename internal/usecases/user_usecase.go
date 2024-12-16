@@ -10,6 +10,7 @@ import (
 
 	"github.com/shayja/go-template-api/internal/entities"
 	"github.com/shayja/go-template-api/internal/errors"
+	"github.com/shayja/go-template-api/internal/services"
 )
 
 type UserRepository interface {
@@ -24,7 +25,8 @@ type UserRepository interface {
 }
 
 type UserInteractor struct {
-    UserRepository UserRepository
+	UserRepository UserRepository
+	SMSService     *services.SMSService // Add SMSService dependency
 }
 
 func (uc *UserInteractor) GetUserById(id string) (*entities.User, error) {
@@ -70,21 +72,23 @@ func (uc *UserInteractor) GenerateAndSendOTP(mobile string) error {
 	expiration := time.Now().Add(5 * time.Minute)
 
 	otp := &entities.OTP{
-		UserId: user.Id,
-		Mobile: mobile,
-		OTP: otpCode,
+		UserId:    user.Id,
+		Mobile:    mobile,
+		OTP:       otpCode,
 		Expiration: expiration,
 		CreatedAt: time.Now(),
 	}
-	
+
 	// Save the OTP in the repository
 	err := uc.UserRepository.SaveOTP(otp)
 	if err != nil {
 		return err
 	}
 
-	// Send the OTP via an external service
-	err = SendSMS(mobile, otpCode)
+	log.Printf("Sending SMS to %s with OTP: %s", mobile, otp)
+
+	// Send the OTP via SMSService
+	err = uc.SMSService.SendSMS(mobile, "Your OTP is: "+otpCode)
 	if err != nil {
 		return err
 	}
@@ -104,7 +108,7 @@ func (uc *UserInteractor) ResendOTP(mobile string) error {
 	// Check if the existing OTP is still valid
 	if time.Now().Before(existingOTP.Expiration) {
 		// Resend the existing OTP
-		err = SendSMS(mobile, existingOTP.OTP)
+		err = uc.SMSService.SendSMS(mobile, "Your OTP is: "+existingOTP.OTP)
 		if err != nil {
 			return err
 		}
@@ -147,19 +151,4 @@ func GenerateOTP() string {
 	}
 
 	return string(otp)
-}
-
-
-// SendSMS simulates sending an SMS to the user's mobile number with the OTP
-func SendSMS(mobile string, otp string) error {
-	// Validate the mobile number format (basic example, expand as needed)
-	if len(mobile) < 10 {
-		return errors.ErrInvalidMobile
-	}
-
-	// Simulate sending SMS (In production, replace this with actual SMS API calls)
-	log.Printf("Sending SMS to %s with OTP: %s", mobile, otp)
-
-	// Return nil to indicate success
-	return nil
 }

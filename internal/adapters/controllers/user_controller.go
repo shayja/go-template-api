@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/shayja/go-template-api/internal/common/helpers"
 	"github.com/shayja/go-template-api/internal/entities"
 	"github.com/shayja/go-template-api/internal/utils"
 )
@@ -105,9 +106,16 @@ func (uc *UserController) RequestOTP(c *gin.Context) {
 	
 	var inputReq entities.OtpRequest
 	if err := c.ShouldBindJSON(&inputReq); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid mobile number"})
 		return
 	}
+
+	mobile, errBadRequest :=  helpers.ConvertToMobile(inputReq.Mobile)
+	if errBadRequest != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": mobile})
+		return
+	}
+	inputReq.Mobile = mobile
 
 	err := uc.UserInteractor.GenerateAndSendOTP(inputReq.Mobile)
 	if err != nil {
