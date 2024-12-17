@@ -26,12 +26,12 @@ func (e *AppError) Error() string {
 	}
 	return fmt.Sprintf("%s: %s", e.Code, e.Message)
 }
-/*
+
 // Unwrap allows access to the underlying error for use with errors.Is and errors.As.
 func (e *AppError) Unwrap() error {
 	return e.Err
 }
-*/
+
 
 // Predefined application errors
 var (
@@ -45,14 +45,46 @@ var (
     ErrOTPNotFound      = New("OTP_NOT_FOUND", "OTP not found", nil)
     ErrInvalidMobile    = New("INVALID_MOBILE", "invalid mobile number", nil)
 )
-/*
+
 // Wrap wraps an existing error with additional context.
 func Wrap(err error, code, message string) *AppError {
 	return New(code, message, err)
 }
 
-// Example usage:
-// return errors.Wrap(err, "DB_CONNECTION_ERROR", "Failed to connect to the database")
+
+/*
+// Example usage in a main function or test
+func ExampleUsage() {
+	// Simulate a validation error
+	inputError := errors.New("input value is empty")
+	err := Wrap(inputError, "VALIDATION_ERROR", "User input validation failed")
+	fmt.Println("Error:", err)
+
+	// Simulate an external API failure
+	externalAPIError := errors.New("failed to reach API endpoint")
+	err2 := Wrap(externalAPIError, ErrExternalAPI.Code, ErrExternalAPI.Message)
+	fmt.Println("Error:", err2)
+
+	// Example with predefined error
+	fmt.Println("Predefined Error:", ErrUserNotFound)
+
+	// Example of unwrapping an error for further inspection
+	if errors.Is(err2, externalAPIError) {
+		fmt.Println("Underlying error matches externalAPIError")
+	}
+
+	// Using errors.As to extract *AppError
+	var appErr *AppError
+	if errors.As(err, &appErr) {
+		fmt.Printf("Extracted AppError - Code: %s, Message: %s\n", appErr.Code, appErr.Message)
+	}
+
+ 	errors.Wrap(err, "DB_CONNECTION_ERROR", "Failed to connect to the database")
+}
+
 */
+
+
+
 
 

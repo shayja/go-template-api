@@ -2,11 +2,13 @@
 package controllers
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/shayja/go-template-api/internal/common/helpers"
 	"github.com/shayja/go-template-api/internal/entities"
+	appErrors "github.com/shayja/go-template-api/internal/errors"
 	"github.com/shayja/go-template-api/internal/utils"
 )
 
@@ -119,6 +121,13 @@ func (uc *UserController) RequestOTP(c *gin.Context) {
 
 	err := uc.UserInteractor.GenerateAndSendOTP(inputReq.Mobile)
 	if err != nil {
+
+		if errors.Is(err, appErrors.ErrUserNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"error": appErrors.ErrUserNotFound.Message })
+			return
+		}
+
+
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
