@@ -22,8 +22,12 @@ CREATE TABLE IF NOT EXISTS users
     username character varying(255),
     passhash character varying(255),
     mobile character varying(50),
-    name character varying(255),
+    first_name character varying(255),
+    last_name character varying(255),
     email character varying(255),
+    otp_types integer[] DEFAULT '{}'::integer[],
+    verified boolean NOT NULL DEFAULT false,
+    verified_at timestamp without time zone,
     updated_at timestamp without time zone,
     created_at timestamp without time zone,
     CONSTRAINT users_pkey PRIMARY KEY (id)
@@ -80,7 +84,8 @@ $BODY$;
 
 ALTER FUNCTION get_products(integer, integer) OWNER TO appuser;
 
-CREATE OR REPLACE FUNCTION get_user(userid uuid)
+CREATE OR REPLACE FUNCTION get_user(
+	userid uuid)
     RETURNS SETOF users 
     LANGUAGE 'sql'
     COST 100
@@ -88,8 +93,7 @@ CREATE OR REPLACE FUNCTION get_user(userid uuid)
     ROWS 1000
 
 AS $BODY$
-SELECT id, username, passhash, mobile, name, email, updated_at, created_at
-FROM users WHERE id=userId
+SELECT id, username, passhash, mobile, first_name, last_name, email, otp_types, verified, verified_at, updated_at, created_at FROM users WHERE id=userId
 LIMIT 1
 $BODY$;
 
@@ -105,8 +109,7 @@ CREATE OR REPLACE FUNCTION get_user_by_username(
     ROWS 1000
 
 AS $BODY$
-SELECT id, username, passhash, mobile, name, email, updated_at, created_at
-FROM users WHERE LOWER(username)=LOWER(user_name)
+SELECT id, username, passhash, mobile, first_name, last_name, email, otp_types, verified, verified_at, updated_at, created_at FROM users WHERE LOWER(username)=LOWER(user_name)
 LIMIT 1
 $BODY$;
 
@@ -122,8 +125,7 @@ CREATE OR REPLACE FUNCTION get_user_by_mobile(
     ROWS 1000
 
 AS $BODY$
-SELECT id, username, passhash, mobile, name, email, updated_at, created_at
-FROM users WHERE mobile=p_mobile
+SELECT id, username, passhash, mobile, first_name, last_name, email, otp_types, verified, verified_at, updated_at, created_at FROM users WHERE mobile=p_mobile
 LIMIT 1
 $BODY$;
 
@@ -188,7 +190,9 @@ $BODY$;
 ALTER PROCEDURE products_update(uuid, text, text, money, text, text) OWNER TO appuser;
 
 
-CREATE OR REPLACE PROCEDURE products_update_image(IN product_id uuid, IN product_image text)
+CREATE OR REPLACE PROCEDURE products_update_image(
+	IN product_id uuid,
+	IN product_image text)
 LANGUAGE 'plpgsql'
 AS $BODY$
 BEGIN
@@ -214,7 +218,8 @@ CREATE OR REPLACE PROCEDURE users_insert(
 	IN p_username text,
 	IN p_passhash text,
 	IN p_mobile text,
-	IN p_name text,
+	IN p_first_name text,
+	IN p_last_name text,
 	IN p_email text,
 	IN p_create_date timestamp without time zone,
 	INOUT next_id uuid)
@@ -223,13 +228,15 @@ AS $BODY$
 
 BEGIN
 	
-    INSERT INTO Users (id, username, passhash, mobile, name, email, updated_at, created_at)
+    INSERT INTO users (id, username, passhash, mobile, first_name, last_name, email, otp_types, updated_at, created_at)
     SELECT gen_random_uuid(),
-           p_username,
-           p_passhash,
-           p_mobile,
-           p_name,
-           p_email,
+          TRIM(p_username),
+          TRIM(p_passhash),
+          TRIM(p_mobile),
+          TRIM(p_first_name),
+		  TRIM(p_last_name),
+          TRIM(LOWER(p_email)),
+		  '{1}',
 		   p_create_date,
 		   p_create_date
     RETURNING id INTO next_id;

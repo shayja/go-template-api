@@ -16,7 +16,7 @@ type UserInteractor interface {
 	GetUserById(id string) (*entities.User, error)
 	GetUserByUsername(username string) (*entities.User, error)
 	GetUserByMobile(mobile string) (*entities.User, error)
-	ValidatePassword(user *entities.User, password string) error
+	ValidatePassword(passwordHash string, plainPassword string) error
 	RegisterUser(request *entities.UserRequest) (*entities.User, error)
 	GenerateAndSendOTP(mobile string) error
 	VerifyOTP(mobile string, otp string) (*entities.User, error)
@@ -56,10 +56,10 @@ func (uc *UserController) Login(c *gin.Context) {
 		return
 	}
 
-	err = uc.UserInteractor.ValidatePassword(user, input.Password)
-
+	err = uc.UserInteractor.ValidatePassword(user.Password, input.Password)
+	
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
+		c.JSON(http.StatusNotFound, gin.H{"status": "failed", "msg": err})
 		return
 	}
 
@@ -70,7 +70,7 @@ func (uc *UserController) Login(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"jwt": jwt})
-} 
+}
 
 func (uc *UserController) RegisterUser(c *gin.Context) {
 	

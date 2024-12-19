@@ -50,8 +50,8 @@ func (m *MockUserInteractor) GetUserByMobile(mobile string) (*entities.User, err
 }
 
 
-func (m *MockUserInteractor) ValidatePassword(user *entities.User, password string) error {
-	args := m.Called(user, password)
+func (m *MockUserInteractor) ValidatePassword(passwordHash string, plainPassword string) error {
+	args := m.Called(passwordHash, plainPassword)
 	return args.Error(0)
 }
 
@@ -107,7 +107,7 @@ func TestLoginSuccess(t *testing.T) {
 	input := entities.AuthenticationInput{Username: "testuser", Password: "password"}
 
 	mockInteractor.On("GetUserByUsername", "testuser").Return(user, nil)
-	mockInteractor.On("ValidatePassword", user, "password").Return(nil)
+	mockInteractor.On("ValidatePassword", user.Password, "password").Return(nil)
 
 	router := gin.Default()
 	router.POST("/login", controller.Login)
@@ -147,7 +147,7 @@ func TestRegisterUserSuccess(t *testing.T) {
 	mockInteractor := new(MockUserInteractor)
 	controller := &UserController{UserInteractor: mockInteractor}
 
-	userReq := entities.UserRequest{Name: "John", Username: "john123", Email: "john@example.com", Password: "secure", Mobile: "1234567890"}
+	userReq := entities.UserRequest{FirstName: "John", LastName: "Doe", Username: "john123", Email: "john@example.com", Password: "secure", Mobile: "1234567890"}
 	createdUser := &entities.User{Id: "1", Username: "john123"}
 
 	mockInteractor.On("RegisterUser", &userReq).Return(createdUser, nil)
@@ -170,7 +170,7 @@ func TestRegisterUserError(t *testing.T) {
 	mockInteractor := new(MockUserInteractor)
 	controller := &UserController{UserInteractor: mockInteractor}
 
-	userReq := entities.UserRequest{Name: "John", Username: "john123", Email: "john@example.com", Password: "secure", Mobile: "1234567890"}
+	userReq := entities.UserRequest{FirstName: "John", LastName: "Doe", Username: "john123", Email: "john@example.com", Password: "secure", Mobile: "1234567890"}
 
 	mockInteractor.On("RegisterUser", &userReq).Return(nil, errors.New("failed to create user"))
 
@@ -223,7 +223,7 @@ func TestLoginInvalidPassword(t *testing.T) {
 	input := entities.AuthenticationInput{Username: "testuser", Password: "wrongpassword"}
 
 	mockInteractor.On("GetUserByUsername", "testuser").Return(user, nil)
-	mockInteractor.On("ValidatePassword", user, "wrongpassword").Return(errors.New("invalid password"))
+	mockInteractor.On("ValidatePassword", user.Password, "wrongpassword").Return(errors.New("invalid password"))
 
 	router := gin.Default()
 	router.POST("/login", controller.Login)
@@ -243,7 +243,7 @@ func TestRegisterUserNilReturn(t *testing.T) {
 	mockInteractor := new(MockUserInteractor)
 	controller := &UserController{UserInteractor: mockInteractor}
 
-	userReq := entities.UserRequest{Name: "John", Username: "john123", Email: "john@example.com", Password: "secure", Mobile: "1234567890"}
+	userReq := entities.UserRequest{FirstName: "John", LastName: "Doe", Username: "john123", Email: "john@example.com", Password: "secure", Mobile: "1234567890"}
 
 	// Simulating a failure in user registration that returns nil
 	mockInteractor.On("RegisterUser", &userReq).Return(nil, nil)
@@ -286,7 +286,7 @@ func TestRegisterUserAlreadyExists(t *testing.T) {
 	mockInteractor := new(MockUserInteractor)
 	controller := &UserController{UserInteractor: mockInteractor}
 
-	userReq := entities.UserRequest{Name: "John", Username: "john123", Email: "john@example.com", Password: "secure", Mobile: "1234567890"}
+	userReq := entities.UserRequest{FirstName: "John", LastName: "Doe", Username: "john123", Email: "john@example.com", Password: "secure", Mobile: "1234567890"}
 
 	// Simulating a failure due to an existing username
 	mockInteractor.On("RegisterUser", &userReq).Return(nil, errors.New("username already exists"))
@@ -310,7 +310,7 @@ func TestRegisterUserMissingDetails(t *testing.T) {
 	controller := &UserController{UserInteractor: mockInteractor}
 
 	// Create a user request with missing details (e.g., no username)
-	userReq := entities.UserRequest{Name: "John", Email: "john@example.com", Password: "secure", Mobile: "1234567890"}
+	userReq := entities.UserRequest{FirstName: "John", LastName: "Doe", Email: "john@example.com", Password: "secure", Mobile: "1234567890"}
 
 	router := gin.Default()
 	router.POST("/register", controller.RegisterUser)

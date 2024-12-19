@@ -32,8 +32,8 @@ func TestGetUserById_Success(t *testing.T) {
 	defer db.Close()
 
 	// Mock the database query
-	rows := sqlmock.NewRows([]string{"id", "username", "password", "mobile", "name", "email", "updated_at", "created_at"}).
-		AddRow("1", "testuser", "hashedpassword", "1234567890", "Test User", "test@example.com", time.Now(), time.Now())
+	rows := sqlmock.NewRows([]string{"id", "username", "password", "mobile", "first_name", "last_name", "email", "updated_at", "created_at"}).
+		AddRow("1", "testuser", "hashedpassword", "1234567890", "Test", "User", "test@example.com", time.Now(), time.Now())
 	mock.ExpectQuery("SELECT \\* FROM get_user\\(\\$1\\)").
 		WithArgs("1").
 		WillReturnRows(rows)
@@ -63,8 +63,9 @@ func TestGetUserByUsername_Success(t *testing.T) {
 	defer db.Close()
 
 	// Mock the database query
-	rows := sqlmock.NewRows([]string{"id", "username", "password", "mobile", "name", "email", "updated_at", "created_at"}).
-		AddRow("1", "testuser", "hashedpassword", "123456789", "Test User", "test@example.com", time.Now(), time.Now())
+	//&user.Id, &user.Username, &user.Password, &user.Mobile, &user.FirstName, &user.LastName, &user.Email, &user.OtpTypes, &user.Verified, &user.VerifiedAt, &user.UpdatedAt, &user.CreatedAt
+	rows := sqlmock.NewRows([]string{"id", "username", "password", "mobile", "first_name", "last_name", "email", "updated_at", "created_at"}).
+		AddRow("1", "testuser", "hashedpassword", "123456789", "Test", "User", "test@example.com", time.Now(), time.Now())
 	mock.ExpectQuery("SELECT \\* FROM get_user_by_username\\(\\$1\\)").
 		WithArgs("testuser").
 		WillReturnRows(rows)
@@ -81,8 +82,8 @@ func TestGetUserByMobile_Success(t *testing.T) {
 	defer db.Close()
 
 	// Mock the database query
-	rows := sqlmock.NewRows([]string{"id", "username", "password", "mobile", "name", "email", "updated_at", "created_at"}).
-		AddRow("1", "testuser", "hashedpassword", "123456789", "Test User", "test@example.com", time.Now(), time.Now())
+	rows := sqlmock.NewRows([]string{"id", "username", "password", "mobile","first_name", "last_name", "email", "updated_at", "created_at"}).
+		AddRow("1", "testuser", "hashedpassword", "123456789", "Test", "User", "test@example.com", time.Now(), time.Now())
 	mock.ExpectQuery("SELECT \\* FROM get_user_by_mobile\\(\\$1\\)").
 		WithArgs("123456789").
 		WillReturnRows(rows)
@@ -103,18 +104,20 @@ func TestCreateUser_Success(t *testing.T) {
 		Username: "newuser",
 		Password: "password123",
 		Mobile:   "987654321",
-		Name:     "New User",
+		FirstName:     "New",
+		LastName:     "User here",
 		Email:    "newuser@example.com",
 		CreatedAt: time.Now(),
 	}
 
 	// Mock the database insert
-	mock.ExpectQuery("CALL users_insert\\(\\$1, \\$2, \\$3, \\$4, \\$5, \\$6, \\$7\\)").
+	mock.ExpectQuery("CALL users_insert\\(\\$1, \\$2, \\$3, \\$4, \\$5, \\$6, \\$7 \\$8\\)").
 		WithArgs(
 			user.Username,
 			sqlmock.AnyArg(), // Allow any password hash
 			user.Mobile,
-			user.Name,
+			user.FirstName,
+			user.LastName,
 			user.Email,
 			user.CreatedAt,
 			sqlmock.AnyArg(), // Allow any ID (it will be a UUID)
@@ -143,16 +146,14 @@ func TestValidatePassword_Success(t *testing.T) {
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte("password123"), bcrypt.DefaultCost)
 
 	// Create a user with the hashed password
-	user := &entities.User{
-		Password: string(hashedPassword),
-	}
+	password := string(hashedPassword)
 
 	// Test valid password
-	err := repo.ValidatePassword(user, "password123")
+	err := repo.ValidatePassword(password, "password123")
 	assert.NoError(t, err)
 
 	// Test invalid password
-	err = repo.ValidatePassword(user, "wrongpassword")
+	err = repo.ValidatePassword(password, "wrongpassword")
 	assert.Error(t, err)
 }
 
@@ -160,8 +161,8 @@ func TestValidatePassword_Error(t *testing.T) {
 	_, _, repo := setupTest()
     password := "password"
     hash, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-    user := &entities.User{Password: string(hash)}
-    err := repo.ValidatePassword(user, "wrongpassword")
+    userPassword := string(hash)
+    err := repo.ValidatePassword(userPassword, "wrongpassword")
     assert.Error(t, err)
 }
 
@@ -173,7 +174,8 @@ func TestOnBeforeSave_Success(t *testing.T) {
 		Username: " testuser ",
 		Password: "password123",
 		Mobile:   "987654321",
-		Name:     "User Name",
+		FirstName:     "User",
+		LastName: "Name",
 		Email:    "user@example.com",
 	}
 

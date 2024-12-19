@@ -19,24 +19,38 @@ type UserRepository struct {
 }
 
 // Get a single item by id
-func (m *UserRepository) GetUserById(id string) (*entities.User, error){
+func (m *UserRepository) GetUserById(id string) (*entities.User, error) {
 	SQL := `SELECT * FROM get_user($1)`
 	query, err := m.Db.Query(SQL, id)
 	if err != nil {
 		fmt.Print(err)
 		return nil, err
 	}
+	defer query.Close() // Ensure the query is closed after use
 
 	user := &entities.User{}
 	if query != nil {
 		for query.Next() {
-			err := query.Scan(&user.Id, &user.Username, &user.Password, &user.Mobile, &user.Name, &user.Email,  &user.UpdatedAt, &user.CreatedAt)
+			var otpTypesRaw string
+			err := query.Scan(&user.Id, &user.Username, &user.Password, &user.Mobile, &user.FirstName, &user.LastName, &user.Email, &otpTypesRaw, &user.Verified, &user.VerifiedAt, &user.UpdatedAt, &user.CreatedAt)
 			if err != nil {
-				fmt.Print(err)
+				// Log error for debugging
+				fmt.Printf("Error scanning: %v\n", err)
 				return nil, err
 			}
+
+			otpTypes := parseOtpTypes(otpTypesRaw)
+			// Debug output to verify the otpTypes value
+			fmt.Printf("Scanned OTP Types: %v\n", otpTypes)
+			user.OtpTypes = otpTypes
 		}
 	}
+
+	// Check if no results were found
+	if user.Id == "" {
+		return nil, fmt.Errorf("user with id %s not found", id)
+	}
+
 	return user, nil
 }
 
@@ -47,19 +61,45 @@ func (m *UserRepository) GetUserByUsername(username string) (*entities.User, err
 		fmt.Print(err)
 		return nil, err
 	}
+	defer query.Close() // Ensure the query is closed after use
 
 	user := &entities.User{}
 	if query != nil {
 		for query.Next() {
-			err := query.Scan(&user.Id, &user.Username, &user.Password, &user.Mobile, &user.Name, &user.Email,  &user.UpdatedAt, &user.CreatedAt)
+			var otpTypesRaw string
+			err := query.Scan(&user.Id, &user.Username, &user.Password, &user.Mobile, &user.FirstName, &user.LastName, &user.Email, &otpTypesRaw, &user.Verified, &user.VerifiedAt, &user.UpdatedAt, &user.CreatedAt)
 			if err != nil {
-				fmt.Print(err)
+				// Log error for debugging
+				fmt.Printf("Error scanning: %v\n", err)
 				return nil, err
 			}
+			otpTypes := parseOtpTypes(otpTypesRaw)
+			user.OtpTypes = otpTypes
 		}
 	}
+
+	// Check if no results were found
+	if user.Id == "" {
+		return nil, fmt.Errorf("user with username %s not found", username)
+	}
+
 	return user, nil
 }
+
+// Helper function to parse the OTP types string into a slice of integers
+func parseOtpTypes(otpTypesRaw string) []int {
+	// Example string: "{1,2,3}"
+	otpTypesRaw = otpTypesRaw[1 : len(otpTypesRaw)-1] // Remove curly braces
+	otpStrings := strings.Split(otpTypesRaw, ",")
+	var otpTypes []int
+	for _, otp := range otpStrings {
+		var otpInt int
+		fmt.Sscanf(otp, "%d", &otpInt)
+		otpTypes = append(otpTypes, otpInt)
+	}
+	return otpTypes
+}
+
 
 func (m *UserRepository) GetUserByMobile(mobile string) (*entities.User, error) {
 	SQL := `SELECT * FROM get_user_by_mobile($1)`
@@ -68,15 +108,19 @@ func (m *UserRepository) GetUserByMobile(mobile string) (*entities.User, error) 
 		fmt.Print(err)
 		return nil, err
 	}
-
+	defer query.Close()
+	
 	if query != nil {
 		user := &entities.User{}
 		for query.Next() {
-			err := query.Scan(&user.Id, &user.Username, &user.Password, &user.Mobile, &user.Name, &user.Email, &user.UpdatedAt, &user.CreatedAt)
+			var otpTypesRaw string
+			err := query.Scan(&user.Id, &user.Username, &user.Password, &user.Mobile, &user.FirstName, &user.LastName, &user.Email, &otpTypesRaw, &user.Verified, &user.VerifiedAt, &user.UpdatedAt, &user.CreatedAt)
 			if err != nil {
 				fmt.Print(err)
 				return nil, err
 			}
+			otpTypes := parseOtpTypes(otpTypesRaw)
+			user.OtpTypes = otpTypes
 			return user, nil
 		}
 		
@@ -121,15 +165,15 @@ func (m *UserRepository) CreateUser(user *entities.User) (*entities.User, error)
 	}
 
 	var lastInsertId string
-	db_err := m.Db.QueryRow("CALL users_insert($1, $2, $3, $4, $5, $6, $7)",
-		user.Username, user.Password, user.Mobile, user.Name, user.Email, user.CreatedAt, user.Id).Scan(&lastInsertId)
+	db_err := m.Db.QueryRow("CALL users_insert($1, $2, $3, $4, $5, $6, $7, $8)",
+		user.Username, user.Password, user.Mobile, user.FirstName, user.LastName, user.Email, user.CreatedAt, user.Id).Scan(&lastInsertId)
 
 	if db_err != nil {
 		fmt.Print(db_err)
 		return user, db_err
 	}
 
-	fmt.Printf("user %s created successfully (new id is %s)\n", user.Name, lastInsertId)
+	fmt.Printf("user %s %s created successfully (new id is %s)\n", user.FirstName, user.LastName, lastInsertId)
 
 	// return the id of the new row
 	return user, nil
@@ -141,9 +185,10 @@ func (m *UserRepository) OnBeforeSave(user *entities.User) error {
 		user.CreatedAt = GenerateTimestamp()
 	}
 	user.Id = GenerateUUID()
-	passwordHash, err := HashPassword(user.Password)
-	if err == nil && len(passwordHash) > 0 {
-		user.Password = passwordHash
+	hashedPassword, err := HashPassword(user.Password)
+	fmt.Printf("Generated hash: '%v'\n", string(hashedPassword))
+	if err == nil && len(hashedPassword) > 0 {
+		user.Password = hashedPassword
 	}
 	user.Username = html.EscapeString(strings.TrimSpace(user.Username))
 	return nil
@@ -176,13 +221,24 @@ func (m *UserRepository) GetOTP(mobile string) (*entities.OTP, error) {
 	return item, nil
 }
 
+func (m *UserRepository) ValidatePassword(passwordHash string, plainPassword string) error {
+	fmt.Printf("Stored hash (raw): '%s'\n", passwordHash)
+	fmt.Printf("Plain password: '%s'\n", plainPassword)
 
-func (m *UserRepository) ValidatePassword(user *entities.User, password string) error {
-	return bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+	// Check if the hash and password match
+	err := bcrypt.CompareHashAndPassword([]byte(passwordHash), []byte(plainPassword))
+	if err != nil {
+		fmt.Printf("Validation error: %v\n", err)
+		return err
+	}
+
+	fmt.Println("Password is valid!")
+	return nil
 }
 
-func HashPassword(password string) (string, error) {
-	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+
+func HashPassword(plainPassword string) (string, error) {
+	passwordHash, err := bcrypt.GenerateFromPassword([]byte(plainPassword), bcrypt.DefaultCost)
 	if err != nil {
 		fmt.Print(err)
 		return "", err
