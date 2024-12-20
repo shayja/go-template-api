@@ -59,7 +59,7 @@ func (uc *UserController) Login(c *gin.Context) {
 	err = uc.UserInteractor.ValidatePassword(user.Password, input.Password)
 	
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"status": "failed", "msg": err})
+		c.JSON(http.StatusUnauthorized, gin.H{"status": "failed", "msg": err})
 		return
 	}
 

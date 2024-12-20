@@ -236,7 +236,7 @@ func TestLoginInvalidPassword(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	// Assert BadRequest due to invalid password
-	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assert.Equal(t, http.StatusUnauthorized, w.Code)
 }
 
 func TestRegisterUserNilReturn(t *testing.T) {

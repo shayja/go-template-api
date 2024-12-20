@@ -143,8 +143,6 @@ func (uc *ProductController) UpdatePrice(c *gin.Context){
         return
     }
 
-	
-	
 	product, err := uc.ProductInteractor.GetById(uri.Id)
 
     if err != nil || !utils.IsValidUUID(product.Id) {
