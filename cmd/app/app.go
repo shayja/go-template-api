@@ -7,9 +7,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/shayja/go-template-api/config"
+	"github.com/shayja/go-template-api/docs"
 	"github.com/shayja/go-template-api/internal/adapters/controllers"
 	"github.com/shayja/go-template-api/internal/adapters/middleware"
 	"github.com/shayja/go-template-api/internal/utils"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 
 	productrepo "github.com/shayja/go-template-api/internal/adapters/repositories/product"
 	userrepo "github.com/shayja/go-template-api/internal/adapters/repositories/user"
@@ -66,6 +69,18 @@ func (app *App) Routes() {
 	protectedRoutes.PATCH(":id", productController.UpdatePrice)
 	protectedRoutes.POST("/image/:id", productController.UpdateImage)
 	protectedRoutes.DELETE(":id", productController.Delete)
+
+
+
+	// Swagger setup
+	docs.SwaggerInfo.Title = "Go Template API"
+	docs.SwaggerInfo.Description = "API documentation for the Go Template API"
+	docs.SwaggerInfo.Version = "1.0"
+	docs.SwaggerInfo.Host = "localhost:8080"
+	docs.SwaggerInfo.Schemes = []string{"http"}
+
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 
 	// Register Routes
 	app.Router = router

@@ -17,68 +17,88 @@ type ProductController struct {
 	ProductInteractor usecases.ProductInteractor
 }
 
-// GetAll implements ProductControllerInterface
+// GetAll godoc
+// @Summary      Get all products
+// @Description  Retrieve a paginated list of all products
+// @Tags         Products
+// @Param        page  query     int  true  "Page number"
+// @Success      200   {object}  map[string]interface{}
+// @Failure      400   {object}  map[string]interface{}
+// @Failure      404   {object}  map[string]interface{}
+// @Router       /products [get]
 func (uc *ProductController) GetAll(c *gin.Context) {
 	AddRequestHeader(c)
-	
-	page, err := strconv.Atoi(c.Query("page"));
+	page, err := strconv.Atoi(c.Query("page"))
 
-	if (err != nil) {
+	if err != nil {
 		panic(err)
-    }
+	}
 
 	res, err := uc.ProductInteractor.GetAll(page)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		return
 	}
-	
-	if (res != nil) {
+
+	if res != nil {
 		c.JSON(http.StatusOK, gin.H{"status": "success", "data": res, "msg": nil})
 		return
-	} else { 
+	} else {
 		c.JSON(404, gin.H{"status": "failed", "data": nil, "msg": "products not found for this page."})
 		return
 	}
 }
 
-// GetById implements ProductControllerInterface
+// GetById godoc
+// @Summary      Get a product by ID
+// @Description  Retrieve product details by product ID
+// @Tags         Products
+// @Param        id   path      string  true  "Product ID"
+// @Success      200  {object}  map[string]interface{}
+// @Failure      400  {object}  map[string]interface{}
+// @Failure      404  {object}  map[string]interface{}
+// @Router       /products/{id} [get]
 func (uc *ProductController) GetById(c *gin.Context) {
 	AddRequestHeader(c)
-	
 
 	var uri entities.ProductUri
 	if err := c.ShouldBindUri(&uri); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		return
 	}
-	
-	
+
 	res, err := uc.ProductInteractor.GetById(uri.Id)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		return
 	}
-	
-	if (utils.IsValidUUID(res.Id)) {
+
+	if utils.IsValidUUID(res.Id) {
 		c.JSON(http.StatusOK, gin.H{"status": "success", "data": res, "msg": nil})
 	} else {
 		c.JSON(http.StatusNotFound, gin.H{"status": "success", "data": nil, "msg": "product not found"})
 	}
 }
 
-// Create implements ProductControllerInterface
+// Create godoc
+// @Summary      Create a new product
+// @Description  Add a new product to the inventory
+// @Tags         Products
+// @Param        product  body      entities.ProductRequest  true  "Product data"
+// @Success      201      {object}  map[string]interface{}
+// @Failure      400      {object}  map[string]interface{}
+// @Router       /products [post]
 func (uc *ProductController) Create(c *gin.Context) {
 	AddRequestHeader(c)
-	
+
 	var post *entities.ProductRequest
 	if err := c.ShouldBind(&post); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		return
 	}
-	
+
 	insertedId, err := uc.ProductInteractor.Create(post)
-	
+
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		return
@@ -91,24 +111,32 @@ func (uc *ProductController) Create(c *gin.Context) {
 	}
 }
 
-// Update implements ProductControllerInterface
+// Update godoc
+// @Summary      Update product details
+// @Description  Update an existing product's details by ID
+// @Tags         Products
+// @Param        id       path      string                  true  "Product ID"
+// @Param        product  body      entities.ProductRequest true  "Updated product data"
+// @Success      200      {object}  map[string]interface{}
+// @Failure      400      {object}  map[string]interface{}
+// @Router       /products/{id} [put]
 func (uc *ProductController) Update(c *gin.Context) {
 	AddRequestHeader(c)
-	
+
 	var product *entities.ProductRequest
-	
+
 	if err := c.ShouldBind(&product); err != nil {
 		fmt.Print(err)
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		return
 	}
-   
+
 	var uri entities.ProductUri
 	if err := c.ShouldBindUri(&uri); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		return
 	}
-	
+
 	res, err := uc.ProductInteractor.Update(uri.Id, product)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
@@ -120,10 +148,20 @@ func (uc *ProductController) Update(c *gin.Context) {
 	} else {
 		c.JSON(http.StatusInternalServerError, gin.H{"status": "failed", "data": nil, "msg": "update product failed"})
 	}
-
 }
 
 //change a specific product price
+// @Summary Update Product Price
+// @Description Update the price of a specific product by ID
+// @Tags Products
+// @Accept json
+// @Produce json
+// @Param id path string true "Product ID"
+// @Param price body entities.ProductPriceRequest true "Product Price"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Failure 404 {object} map[string]interface{}
+// @Router /products/{id}/price [put]
 func (uc *ProductController) UpdatePrice(c *gin.Context){
 	AddRequestHeader(c)
     var uri entities.ProductUri
@@ -164,6 +202,17 @@ func (uc *ProductController) UpdatePrice(c *gin.Context){
 	}
 }
 
+// @Summary Update Product Image
+// @Description Upload and update the image of a specific product by ID
+// @Tags Products
+// @Accept multipart/form-data
+// @Produce json
+// @Param id path string true "Product ID"
+// @Param image formData file true "Product Image"
+// @Success 201 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /products/{id}/image [put]
 func (uc *ProductController) UpdateImage(c *gin.Context){
 	AddRequestHeader(c)
     var uri entities.ProductUri
@@ -228,6 +277,15 @@ func (uc *ProductController) UpdateImage(c *gin.Context){
    }
 
 // Delete implements ProductController Interface
+// @Summary Delete Product
+// @Description Delete a specific product by ID
+// @Tags Products
+// @Produce json
+// @Param id path string true "Product ID"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /products/{id} [delete]
 func (uc *ProductController) Delete(c *gin.Context) {
 	AddRequestHeader(c)
 	

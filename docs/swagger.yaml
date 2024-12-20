@@ -1,0 +1,455 @@
+definitions:
+  entities.AuthenticationInput:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  entities.OtpRequest:
+    properties:
+      mobile:
+        type: string
+    type: object
+  entities.ProductPriceRequest:
+    properties:
+      price:
+        type: number
+    required:
+    - price
+    type: object
+  entities.ProductRequest:
+    properties:
+      description:
+        type: string
+      image:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      sku:
+        type: string
+    required:
+    - description
+    - image
+    - name
+    - price
+    - sku
+    type: object
+  entities.UserRequest:
+    properties:
+      email:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+      mobile:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - first_name
+    - last_name
+    - mobile
+    - password
+    - username
+    type: object
+  entities.VerifyOtpRequest:
+    properties:
+      mobile:
+        type: string
+      otp:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /products:
+    get:
+      description: Retrieve a paginated list of all products
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get all products
+      tags:
+      - Products
+    post:
+      description: Add a new product to the inventory
+      parameters:
+      - description: Product data
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/entities.ProductRequest'
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a new product
+      tags:
+      - Products
+  /products/{id}:
+    delete:
+      description: Delete a specific product by ID
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete Product
+      tags:
+      - Products
+    get:
+      description: Retrieve product details by product ID
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get a product by ID
+      tags:
+      - Products
+    put:
+      description: Update an existing product's details by ID
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Updated product data
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/entities.ProductRequest'
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update product details
+      tags:
+      - Products
+  /products/{id}/image:
+    put:
+      consumes:
+      - multipart/form-data
+      description: Upload and update the image of a specific product by ID
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Product Image
+        in: formData
+        name: image
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update Product Image
+      tags:
+      - Products
+  /products/{id}/price:
+    put:
+      consumes:
+      - application/json
+      description: Update the price of a specific product by ID
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Product Price
+        in: body
+        name: price
+        required: true
+        schema:
+          $ref: '#/definitions/entities.ProductPriceRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update Product Price
+      tags:
+      - Products
+  /users/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate a user with username and password
+      parameters:
+      - description: Authentication Input
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/entities.AuthenticationInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Login User
+      tags:
+      - Users
+  /users/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user
+      parameters:
+      - description: User Request
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/entities.UserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Register User
+      tags:
+      - Users
+  /users/request-otp:
+    post:
+      consumes:
+      - application/json
+      description: Generate and send an OTP to a user's mobile number
+      parameters:
+      - description: OTP Request
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/entities.OtpRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Request OTP
+      tags:
+      - Users
+  /users/resend-otp:
+    post:
+      consumes:
+      - application/json
+      description: Resend the OTP to a user's mobile number
+      parameters:
+      - description: OTP Request
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/entities.OtpRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Resend OTP
+      tags:
+      - Users
+  /users/verify-otp:
+    post:
+      consumes:
+      - application/json
+      description: Verify the OTP and authenticate the user
+      parameters:
+      - description: Verify OTP Request
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/entities.VerifyOtpRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Verify OTP
+      tags:
+      - Users
+swagger: "2.0"
