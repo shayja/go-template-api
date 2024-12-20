@@ -29,14 +29,14 @@ type UserController struct {
 }
 
 func (uc *UserController) Login(c *gin.Context) {
+	AddRequestHeader(c)
+
 	var input *entities.AuthenticationInput
 
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		return
 	}
-
-	AddRequestHeader(c)
 
 	if len(input.Username) < 2 {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": "Username is required"})

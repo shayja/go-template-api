@@ -3,7 +3,6 @@ package usecases
 
 import (
 	"crypto/rand"
-	"fmt"
 	"log"
 	"math/big"
 	"strings"
@@ -12,7 +11,6 @@ import (
 	"github.com/shayja/go-template-api/internal/entities"
 	"github.com/shayja/go-template-api/internal/errors"
 	"github.com/shayja/go-template-api/internal/services"
-	"github.com/shayja/go-template-api/internal/utils"
 )
 
 type UserRepository interface {
@@ -34,39 +32,6 @@ type UserInteractor struct {
 func (uc *UserInteractor) GetUserById(id string) (*entities.User, error) {
 	return uc.UserRepository.GetUserById(id)
 }
-
-func (uc *UserInteractor) Login(input *entities.AuthenticationInput) (string, error) {
-	// Validate username and password
-	if len(input.Username) < 2 {
-		return "", fmt.Errorf("username is required")
-	}
-
-	if len(input.Password) < 2 {
-		return "", fmt.Errorf("password is required")
-	}
-
-	// Fetch user by username
-	user, err := uc.UserRepository.GetUserByUsername(input.Username)
-	if err != nil {
-		return "", fmt.Errorf("invalid username or password")
-	}
-
-	// Validate password
-	err = uc.UserRepository.ValidatePassword(user.Password, input.Password)
-	if err != nil {
-		return "", fmt.Errorf("invalid username or password")
-	}
-
-	// Generate JWT
-	jwt, err := utils.GenerateJWT(user)
-	if err != nil {
-		return "", fmt.Errorf("failed to generate token: %v", err)
-	}
-
-	return jwt, nil
-}
-
-
 
 func (uc *UserInteractor) GetUserByUsername(username string) (*entities.User, error) {
 	return uc.UserRepository.GetUserByUsername(username)
