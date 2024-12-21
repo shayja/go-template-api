@@ -1,3 +1,4 @@
+basePath: /api/v1
 definitions:
   entities.AuthenticationInput:
     properties:
@@ -68,10 +69,190 @@ definitions:
       otp:
         type: string
     type: object
+host: localhost:8080
 info:
-  contact: {}
+  contact:
+    email: shayja@gmail.com
+    name: Shay Jacoby
+    url: https://github.com/shayja/
+  description: API documentation for the Go Template API.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: Go Template API
+  version: "1.0"
 paths:
-  /products:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate a user with username and password
+      parameters:
+      - description: Authentication Input
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/entities.AuthenticationInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Login to your account
+      tags:
+      - Users
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user
+      parameters:
+      - description: User Request
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/entities.UserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Register User
+      tags:
+      - Users
+  /auth/request-otp:
+    post:
+      consumes:
+      - application/json
+      description: Generate and send an OTP to a user's mobile number
+      parameters:
+      - description: OTP Request
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/entities.OtpRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Request OTP
+      tags:
+      - Users
+  /auth/resend-otp:
+    post:
+      consumes:
+      - application/json
+      description: Resend the OTP to a user's mobile number
+      parameters:
+      - description: OTP Request
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/entities.OtpRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Resend OTP
+      tags:
+      - Users
+  /auth/verify-otp:
+    post:
+      consumes:
+      - application/json
+      description: Verify the OTP and authenticate the user
+      parameters:
+      - description: Verify OTP Request
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/entities.VerifyOtpRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Verify OTP
+      tags:
+      - Users
+  /product:
     get:
       description: Retrieve a paginated list of all products
       parameters:
@@ -122,36 +303,7 @@ paths:
       summary: Create a new product
       tags:
       - Products
-  /products/{id}:
-    delete:
-      description: Delete a specific product by ID
-      parameters:
-      - description: Product ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties: true
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties: true
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties: true
-            type: object
-      summary: Delete Product
-      tags:
-      - Products
+  /product/{id}:
     get:
       description: Retrieve product details by product ID
       parameters:
@@ -205,6 +357,36 @@ paths:
             additionalProperties: true
             type: object
       summary: Update product details
+      tags:
+      - Products
+  /products/{id}:
+    delete:
+      description: Delete a specific product by ID
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete Product
       tags:
       - Products
   /products/{id}/image:
@@ -282,174 +464,14 @@ paths:
       summary: Update Product Price
       tags:
       - Products
-  /users/login:
-    post:
-      consumes:
-      - application/json
-      description: Authenticate a user with username and password
-      parameters:
-      - description: Authentication Input
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/entities.AuthenticationInput'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties: true
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties: true
-            type: object
-        "401":
-          description: Unauthorized
-          schema:
-            additionalProperties: true
-            type: object
-      summary: Login User
-      tags:
-      - Users
-  /users/register:
-    post:
-      consumes:
-      - application/json
-      description: Register a new user
-      parameters:
-      - description: User Request
-        in: body
-        name: user
-        required: true
-        schema:
-          $ref: '#/definitions/entities.UserRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            additionalProperties: true
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties: true
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties: true
-            type: object
-      summary: Register User
-      tags:
-      - Users
-  /users/request-otp:
-    post:
-      consumes:
-      - application/json
-      description: Generate and send an OTP to a user's mobile number
-      parameters:
-      - description: OTP Request
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/entities.OtpRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties: true
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties: true
-            type: object
-        "404":
-          description: Not Found
-          schema:
-            additionalProperties: true
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties: true
-            type: object
-      summary: Request OTP
-      tags:
-      - Users
-  /users/resend-otp:
-    post:
-      consumes:
-      - application/json
-      description: Resend the OTP to a user's mobile number
-      parameters:
-      - description: OTP Request
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/entities.OtpRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties: true
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties: true
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties: true
-            type: object
-      summary: Resend OTP
-      tags:
-      - Users
-  /users/verify-otp:
-    post:
-      consumes:
-      - application/json
-      description: Verify the OTP and authenticate the user
-      parameters:
-      - description: Verify OTP Request
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/entities.VerifyOtpRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties: true
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties: true
-            type: object
-        "401":
-          description: Unauthorized
-          schema:
-            additionalProperties: true
-            type: object
-      summary: Verify OTP
-      tags:
-      - Users
+schemes:
+- http
+- https
+securityDefinitions:
+  apiKey:
+    description: Type "Bearer" followed by a space and JWT token. Please add it in
+      the format "Bearer {AccessToken}" to authorize your requests.
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

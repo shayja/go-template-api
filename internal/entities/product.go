@@ -5,6 +5,10 @@ import (
 	"time"
 )
 
+// Product model info
+//
+//  @description    Product model contains the information about the product
+//  @description    to be added to the store
 type Product struct {
 	Id 			string	`json:"id" validate:"required"`
 	Name        string	`json:"name" validate:"required"`

@@ -25,7 +25,7 @@ type ProductController struct {
 // @Success      200   {object}  map[string]interface{}
 // @Failure      400   {object}  map[string]interface{}
 // @Failure      404   {object}  map[string]interface{}
-// @Router       /products [get]
+// @Router       /product [get]
 func (uc *ProductController) GetAll(c *gin.Context) {
 	AddRequestHeader(c)
 	page, err := strconv.Atoi(c.Query("page"))
@@ -57,7 +57,7 @@ func (uc *ProductController) GetAll(c *gin.Context) {
 // @Success      200  {object}  map[string]interface{}
 // @Failure      400  {object}  map[string]interface{}
 // @Failure      404  {object}  map[string]interface{}
-// @Router       /products/{id} [get]
+// @Router       /product/{id} [get]
 func (uc *ProductController) GetById(c *gin.Context) {
 	AddRequestHeader(c)
 
@@ -87,7 +87,7 @@ func (uc *ProductController) GetById(c *gin.Context) {
 // @Param        product  body      entities.ProductRequest  true  "Product data"
 // @Success      201      {object}  map[string]interface{}
 // @Failure      400      {object}  map[string]interface{}
-// @Router       /products [post]
+// @Router       /product [post]
 func (uc *ProductController) Create(c *gin.Context) {
 	AddRequestHeader(c)
 
@@ -119,7 +119,7 @@ func (uc *ProductController) Create(c *gin.Context) {
 // @Param        product  body      entities.ProductRequest true  "Updated product data"
 // @Success      200      {object}  map[string]interface{}
 // @Failure      400      {object}  map[string]interface{}
-// @Router       /products/{id} [put]
+// @Router       /product/{id} [put]
 func (uc *ProductController) Update(c *gin.Context) {
 	AddRequestHeader(c)
 

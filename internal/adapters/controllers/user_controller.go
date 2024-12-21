@@ -26,7 +26,7 @@ type UserController struct {
     UserInteractor UserInteractor
 }
 
-// @Summary Login User
+// @Summary Login to your account
 // @Description Authenticate a user with username and password
 // @Tags Users
 // @Accept json
@@ -35,7 +35,7 @@ type UserController struct {
 // @Success 200 {object} map[string]interface{}
 // @Failure 400 {object} map[string]interface{}
 // @Failure 401 {object} map[string]interface{}
-// @Router /users/login [post]
+// @Router /auth/login [post]
 func (uc *UserController) Login(c *gin.Context) {
 	AddRequestHeader(c)
 
@@ -88,7 +88,7 @@ func (uc *UserController) Login(c *gin.Context) {
 // @Success 201 {object} map[string]interface{}
 // @Failure 400 {object} map[string]interface{}
 // @Failure 500 {object} map[string]interface{}
-// @Router /users/register [post]
+// @Router /auth/register [post]
 func (uc *UserController) RegisterUser(c *gin.Context) {
 	AddRequestHeader(c)
 
@@ -127,7 +127,7 @@ func (uc *UserController) RegisterUser(c *gin.Context) {
 // @Failure 400 {object} map[string]interface{}
 // @Failure 404 {object} map[string]interface{}
 // @Failure 500 {object} map[string]interface{}
-// @Router /users/request-otp [post]
+// @Router /auth/request-otp [post]
 func (uc *UserController) RequestOTP(c *gin.Context) {
 	var inputReq entities.OtpRequest
 	if err := c.ShouldBindJSON(&inputReq); err != nil {
@@ -164,7 +164,7 @@ func (uc *UserController) RequestOTP(c *gin.Context) {
 // @Success 200 {object} map[string]interface{}
 // @Failure 400 {object} map[string]interface{}
 // @Failure 401 {object} map[string]interface{}
-// @Router /users/verify-otp [post]
+// @Router /auth/verify-otp [post]
 func (uc *UserController) VerifyOTP(c *gin.Context) {
 	var inputReq entities.VerifyOtpRequest
 	if err := c.ShouldBindJSON(&inputReq); err != nil {
@@ -190,7 +190,7 @@ func (uc *UserController) VerifyOTP(c *gin.Context) {
 // @Success 200 {object} map[string]interface{}
 // @Failure 400 {object} map[string]interface{}
 // @Failure 500 {object} map[string]interface{}
-// @Router /users/resend-otp [post]
+// @Router /auth/resend-otp [post]
 func (uc *UserController) ResendOTP(c *gin.Context) {
 	var inputReq entities.OtpRequest
 	if err := c.ShouldBindJSON(&inputReq); err != nil {
