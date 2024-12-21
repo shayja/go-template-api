@@ -277,6 +277,11 @@ const docTemplate = `{
         },
         "/product": {
             "get": {
+                "security": [
+                    {
+                        "apiKey": []
+                    }
+                ],
                 "description": "Retrieve a paginated list of all products",
                 "tags": [
                     "Products"
@@ -316,6 +321,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "apiKey": []
+                    }
+                ],
                 "description": "Add a new product to the inventory",
                 "tags": [
                     "Products"
@@ -352,6 +362,11 @@ const docTemplate = `{
         },
         "/product/{id}": {
             "get": {
+                "security": [
+                    {
+                        "apiKey": []
+                    }
+                ],
                 "description": "Retrieve product details by product ID",
                 "tags": [
                     "Products"
@@ -391,6 +406,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "apiKey": []
+                    }
+                ],
                 "description": "Update an existing product's details by ID",
                 "tags": [
                     "Products"
@@ -434,6 +454,11 @@ const docTemplate = `{
         },
         "/products/{id}": {
             "delete": {
+                "security": [
+                    {
+                        "apiKey": []
+                    }
+                ],
                 "description": "Delete a specific product by ID",
                 "produces": [
                     "application/json"
@@ -478,6 +503,11 @@ const docTemplate = `{
         },
         "/products/{id}/image": {
             "put": {
+                "security": [
+                    {
+                        "apiKey": []
+                    }
+                ],
                 "description": "Upload and update the image of a specific product by ID",
                 "consumes": [
                     "multipart/form-data"
@@ -532,6 +562,11 @@ const docTemplate = `{
         },
         "/products/{id}/price": {
             "put": {
+                "security": [
+                    {
+                        "apiKey": []
+                    }
+                ],
                 "description": "Update the price of a specific product by ID",
                 "consumes": [
                     "application/json"
@@ -693,7 +728,7 @@ const docTemplate = `{
     },
     "securityDefinitions": {
         "apiKey": {
-            "description": "Type \"Bearer\" followed by a space and JWT token. Please add it in the format \"Bearer {AccessToken}\" to authorize your requests.",
+            "description": "Type \"Bearer\" followed by a space and JWT token.",
             "type": "apiKey",
             "name": "Authorization",
             "in": "header"

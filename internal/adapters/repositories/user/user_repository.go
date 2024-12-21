@@ -222,8 +222,8 @@ func (m *UserRepository) GetOTP(mobile string) (*entities.OTP, error) {
 }
 
 func (m *UserRepository) ValidatePassword(passwordHash string, plainPassword string) error {
-	fmt.Printf("Stored hash (raw): '%s'\n", passwordHash)
-	fmt.Printf("Plain password: '%s'\n", plainPassword)
+	//fmt.Printf("Stored hash (raw): '%s'\n", passwordHash)
+	//fmt.Printf("Plain password: '%s'\n", plainPassword)
 
 	// Check if the hash and password match
 	err := bcrypt.CompareHashAndPassword([]byte(passwordHash), []byte(plainPassword))
@@ -232,7 +232,7 @@ func (m *UserRepository) ValidatePassword(passwordHash string, plainPassword str
 		return err
 	}
 
-	fmt.Println("Password is valid!")
+	//fmt.Println("Password is valid!")
 	return nil
 }
 

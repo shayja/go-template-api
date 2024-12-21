@@ -26,6 +26,7 @@ type ProductController struct {
 // @Failure      400   {object}  map[string]interface{}
 // @Failure      404   {object}  map[string]interface{}
 // @Router       /product [get]
+// @Security apiKey
 func (uc *ProductController) GetAll(c *gin.Context) {
 	AddRequestHeader(c)
 	page, err := strconv.Atoi(c.Query("page"))
@@ -58,6 +59,7 @@ func (uc *ProductController) GetAll(c *gin.Context) {
 // @Failure      400  {object}  map[string]interface{}
 // @Failure      404  {object}  map[string]interface{}
 // @Router       /product/{id} [get]
+// @Security apiKey
 func (uc *ProductController) GetById(c *gin.Context) {
 	AddRequestHeader(c)
 
@@ -88,6 +90,7 @@ func (uc *ProductController) GetById(c *gin.Context) {
 // @Success      201      {object}  map[string]interface{}
 // @Failure      400      {object}  map[string]interface{}
 // @Router       /product [post]
+// @Security apiKey
 func (uc *ProductController) Create(c *gin.Context) {
 	AddRequestHeader(c)
 
@@ -120,6 +123,7 @@ func (uc *ProductController) Create(c *gin.Context) {
 // @Success      200      {object}  map[string]interface{}
 // @Failure      400      {object}  map[string]interface{}
 // @Router       /product/{id} [put]
+// @Security apiKey
 func (uc *ProductController) Update(c *gin.Context) {
 	AddRequestHeader(c)
 
@@ -162,6 +166,7 @@ func (uc *ProductController) Update(c *gin.Context) {
 // @Failure 400 {object} map[string]interface{}
 // @Failure 404 {object} map[string]interface{}
 // @Router /products/{id}/price [put]
+// @Security apiKey
 func (uc *ProductController) UpdatePrice(c *gin.Context){
 	AddRequestHeader(c)
     var uri entities.ProductUri
@@ -213,6 +218,7 @@ func (uc *ProductController) UpdatePrice(c *gin.Context){
 // @Failure 400 {object} map[string]interface{}
 // @Failure 500 {object} map[string]interface{}
 // @Router /products/{id}/image [put]
+// @Security apiKey
 func (uc *ProductController) UpdateImage(c *gin.Context){
 	AddRequestHeader(c)
     var uri entities.ProductUri
@@ -286,6 +292,7 @@ func (uc *ProductController) UpdateImage(c *gin.Context){
 // @Failure 400 {object} map[string]interface{}
 // @Failure 500 {object} map[string]interface{}
 // @Router /products/{id} [delete]
+// @Security apiKey
 func (uc *ProductController) Delete(c *gin.Context) {
 	AddRequestHeader(c)
 	

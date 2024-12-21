@@ -32,6 +32,10 @@ func GenerateJWT(user *entities.User) (string, error) {
 func ValidateJWT(context *gin.Context) error {
 	token, err := getToken(context)
 
+	if token == nil {
+		return errors.New("No token provided")
+	}
+
 	if err != nil {
 		return err
 	}

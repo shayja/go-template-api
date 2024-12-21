@@ -277,6 +277,8 @@ paths:
           schema:
             additionalProperties: true
             type: object
+      security:
+      - apiKey: []
       summary: Get all products
       tags:
       - Products
@@ -300,6 +302,8 @@ paths:
           schema:
             additionalProperties: true
             type: object
+      security:
+      - apiKey: []
       summary: Create a new product
       tags:
       - Products
@@ -328,6 +332,8 @@ paths:
           schema:
             additionalProperties: true
             type: object
+      security:
+      - apiKey: []
       summary: Get a product by ID
       tags:
       - Products
@@ -356,6 +362,8 @@ paths:
           schema:
             additionalProperties: true
             type: object
+      security:
+      - apiKey: []
       summary: Update product details
       tags:
       - Products
@@ -386,6 +394,8 @@ paths:
           schema:
             additionalProperties: true
             type: object
+      security:
+      - apiKey: []
       summary: Delete Product
       tags:
       - Products
@@ -423,6 +433,8 @@ paths:
           schema:
             additionalProperties: true
             type: object
+      security:
+      - apiKey: []
       summary: Update Product Image
       tags:
       - Products
@@ -461,6 +473,8 @@ paths:
           schema:
             additionalProperties: true
             type: object
+      security:
+      - apiKey: []
       summary: Update Product Price
       tags:
       - Products
@@ -469,8 +483,7 @@ schemes:
 - https
 securityDefinitions:
   apiKey:
-    description: Type "Bearer" followed by a space and JWT token. Please add it in
-      the format "Bearer {AccessToken}" to authorize your requests.
+    description: Type "Bearer" followed by a space and JWT token.
     in: header
     name: Authorization
     type: apiKey
