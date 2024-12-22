@@ -1,5 +1,5 @@
-// frameworks/db/db_info.go
-package db
+// frameworks/drivers/common/db_info.go
+package common
 
 type DbInfo struct {
     Host     string

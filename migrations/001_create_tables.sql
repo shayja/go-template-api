@@ -99,10 +99,10 @@ CREATE TABLE order_details
         REFERENCES products (id) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
-)
+);
 
-CREATE INDEX idx_order_details_order_id ON order_details USING btree (order_id ASC NULLS LAST)
-CREATE INDEX idx_order_details_product_id ON order_details USING btree (product_id ASC NULLS LAST)
+CREATE INDEX idx_order_details_order_id ON order_details USING btree (order_id ASC NULLS LAST);
+CREATE INDEX idx_order_details_product_id ON order_details USING btree (product_id ASC NULLS LAST);
     
 GRANT INSERT, SELECT, UPDATE, DELETE ON TABLE order_details TO appuser;
 
@@ -121,7 +121,16 @@ GRANT INSERT, SELECT, UPDATE, DELETE ON TABLE order_status TO appuser;
 
 
 
+-- Type: order_detail_type
 
+CREATE TYPE order_detail_type AS
+(
+	product_id uuid,
+	quantity integer,
+	unit_price numeric(10,2)
+);
+
+ALTER TYPE order_detail_type OWNER TO appuser;
 
 
 
@@ -320,7 +329,7 @@ BEGIN
 
 END;
 $BODY$;
-ALTER PROCEDURE users_insert(text, text, text, text, text, timestamp without time zone, uuid) OWNER TO appuser;
+ALTER PROCEDURE users_insert(text, text, text, text, text, text, timestamp without time zone, uuid) OWNER TO appuser;
 
 
 

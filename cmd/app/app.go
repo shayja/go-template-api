@@ -19,7 +19,7 @@ import (
 	userrepo "github.com/shayja/go-template-api/internal/adapters/repositories/user"
 	"github.com/shayja/go-template-api/internal/usecases"
 	"github.com/shayja/go-template-api/pkg/constants"
-	"github.com/shayja/go-template-api/pkg/frameworks/db"
+	sql_postgres "github.com/shayja/go-template-api/pkg/drivers/sql"
 )
 
 type App struct {
@@ -28,7 +28,7 @@ type App struct {
 }
 
 func (app *App) ConnectDB(){
-	db := db.OpenDBConnection()
+	db := sql_postgres.OpenDBConnection()
 	app.DB = db
 }
 

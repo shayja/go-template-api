@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/shayja/go-template-api/internal/common/helpers"
 	"github.com/shayja/go-template-api/internal/entities"
 	appErrors "github.com/shayja/go-template-api/internal/errors"
 	"github.com/shayja/go-template-api/internal/utils"
@@ -135,7 +134,7 @@ func (uc *UserController) RequestOTP(c *gin.Context) {
 		return
 	}
 
-	mobile, errBadRequest :=  helpers.ConvertToMobile(inputReq.Mobile)
+	mobile, errBadRequest :=  utils.ConvertToMobile(inputReq.Mobile)
 	if errBadRequest != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": mobile})
 		return

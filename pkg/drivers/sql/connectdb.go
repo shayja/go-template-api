@@ -1,5 +1,5 @@
-// frameworks/db/connectdb.go
-package db
+// frameworks/drivers/sql/connectdb.go
+package sql
 
 import (
 	"database/sql"
@@ -7,12 +7,13 @@ import (
 
 	_ "github.com/lib/pq"
 	"github.com/shayja/go-template-api/config"
+	"github.com/shayja/go-template-api/pkg/drivers/common"
 )
 
 func OpenDBConnection() (*sql.DB) {
     
-    // Read the connection propertied from the env variables.
-    v := NewDbInfo(
+    // Read the connection properties from the env variables.
+    v := common.NewDbInfo(
         config.Config("DB_HOST"),
         config.Config("DB_PORT"),
         config.Config("DB_USER"),
@@ -23,7 +24,7 @@ func OpenDBConnection() (*sql.DB) {
 
     // Format the connection string to the database
     connectionString := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s", v.Host, v.Port, v.User, v.Password, v.DBName, v.SSLMode)
-    
+
     // Establish a connection to the PostgreSQL database
     db, err := sql.Open("postgres", connectionString)
     if err != nil {
