@@ -63,7 +63,7 @@ func (uc *ProductController) GetAll(c *gin.Context) {
 func (uc *ProductController) GetById(c *gin.Context) {
 	AddRequestHeader(c)
 
-	var uri entities.ProductUri
+	var uri entities.IdRequest
 	if err := c.ShouldBindUri(&uri); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		return
@@ -135,7 +135,7 @@ func (uc *ProductController) Update(c *gin.Context) {
 		return
 	}
 
-	var uri entities.ProductUri
+	var uri entities.IdRequest
 	if err := c.ShouldBindUri(&uri); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		return
@@ -169,7 +169,7 @@ func (uc *ProductController) Update(c *gin.Context) {
 // @Security apiKey
 func (uc *ProductController) UpdatePrice(c *gin.Context){
 	AddRequestHeader(c)
-    var uri entities.ProductUri
+    var uri entities.IdRequest
 	if err := c.ShouldBindUri(&uri); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		return
@@ -221,7 +221,7 @@ func (uc *ProductController) UpdatePrice(c *gin.Context){
 // @Security apiKey
 func (uc *ProductController) UpdateImage(c *gin.Context){
 	AddRequestHeader(c)
-    var uri entities.ProductUri
+    var uri entities.IdRequest
 	if err := c.ShouldBindUri(&uri); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		return
@@ -296,7 +296,7 @@ func (uc *ProductController) UpdateImage(c *gin.Context){
 func (uc *ProductController) Delete(c *gin.Context) {
 	AddRequestHeader(c)
 	
-	var uri entities.ProductUri
+	var uri entities.IdRequest
 	if err := c.ShouldBindUri(&uri); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"status": "failed", "msg": err})
 		return

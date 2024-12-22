@@ -29,9 +29,7 @@ type ProductRequest struct {
 }
 
 
-type ProductUri struct {
-	Id string `uri:"id" binding:"required"`
-}
+
 
 type ProductPriceRequest struct {
 	Price       float64	`json:"price" validate:"required"`

@@ -1,5 +1,7 @@
 --Create Tables
 
+-- Table: users
+
 CREATE TABLE IF NOT EXISTS products
 (
     id uuid NOT NULL,
@@ -14,7 +16,8 @@ CREATE TABLE IF NOT EXISTS products
 );
 
 GRANT INSERT, SELECT, UPDATE, DELETE ON TABLE products TO appuser;
-ALTER TABLE IF EXISTS products OWNER to appuser;
+
+-- Table: users
 
 CREATE TABLE IF NOT EXISTS users
 (
@@ -34,8 +37,8 @@ CREATE TABLE IF NOT EXISTS users
 );
 
 GRANT INSERT, SELECT, UPDATE, DELETE ON TABLE users TO appuser;
-ALTER TABLE IF EXISTS users OWNER to appuser;
 
+-- Table: otpcodes
 
 CREATE TABLE otpcodes
 (
@@ -47,8 +50,80 @@ CREATE TABLE otpcodes
     created_at timestamp without time zone,
     CONSTRAINT otpcodes_pkey PRIMARY KEY (id)
 );
-ALTER TABLE otpcodes OWNER to appuser;
-GRANT ALL ON TABLE users TO appuser;
+GRANT ALL ON TABLE otpcodes TO appuser;
+
+-- Table: orders
+
+CREATE TABLE IF NOT EXISTS orders
+(
+    id uuid NOT NULL,
+    user_id uuid NOT NULL,
+    total_price numeric(10,2) NOT NULL,
+    status numeric NOT NULL DEFAULT 1,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT orders_pkey PRIMARY KEY (id),
+    CONSTRAINT fk_user FOREIGN KEY (user_id)
+        REFERENCES users (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+);
+
+
+-- Index: idx_orders_status
+CREATE INDEX IF NOT EXISTS idx_orders_status ON orders USING btree(status ASC NULLS LAST);
+-- Index: idx_orders_user_id
+CREATE INDEX IF NOT EXISTS idx_orders_user_id ON orders USING btree (user_id ASC NULLS LAST);
+    
+GRANT INSERT, SELECT, UPDATE, DELETE ON TABLE orders TO appuser;
+
+
+-- Table: order_details
+
+CREATE TABLE order_details
+(
+    id uuid NOT NULL,
+    order_id uuid NOT NULL,
+    product_id uuid NOT NULL,
+    quantity integer NOT NULL DEFAULT 1,
+    unit_price numeric(10,2) NOT NULL,
+    total_price numeric(10,2) GENERATED ALWAYS AS (((quantity)::numeric * unit_price)) STORED,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT order_details_pkey PRIMARY KEY (id),
+    CONSTRAINT fk_order FOREIGN KEY (order_id)
+        REFERENCES orders (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE CASCADE,
+    CONSTRAINT fk_product FOREIGN KEY (product_id)
+        REFERENCES products (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+
+CREATE INDEX idx_order_details_order_id ON order_details USING btree (order_id ASC NULLS LAST)
+CREATE INDEX idx_order_details_product_id ON order_details USING btree (product_id ASC NULLS LAST)
+    
+GRANT INSERT, SELECT, UPDATE, DELETE ON TABLE order_details TO appuser;
+
+
+-- Table: order_status
+
+CREATE TABLE IF NOT EXISTS order_status
+(
+    id numeric NOT NULL,
+    name character varying(50) NOT NULL,
+    CONSTRAINT status_pkey PRIMARY KEY (id)
+);
+
+
+GRANT INSERT, SELECT, UPDATE, DELETE ON TABLE order_status TO appuser;
+
+
+
+
+
+
 
 --Create Functions
 
@@ -274,6 +349,60 @@ BEGIN
 END;
 $BODY$;
 ALTER PROCEDURE otpcodes_insert(uuid, text, text, timestamp without time zone, timestamp without time zone, uuid) OWNER TO appuser;
+
+
+
+
+
+CREATE OR REPLACE PROCEDURE orders_insert(
+	IN p_user_id uuid,
+	IN p_total_price numeric,
+	IN p_status numeric,
+	IN p_order_details order_detail_type[],
+	INOUT next_order_id uuid)
+LANGUAGE 'plpgsql'
+AS $BODY$
+BEGIN
+
+    -- Insert the new order
+    INSERT INTO orders (id, user_id, total_price, status)
+    VALUES (
+        gen_random_uuid(),
+        p_user_id,
+        p_total_price,
+        p_status
+    )
+    RETURNING id INTO next_order_id;
+
+    -- Unnest and insert the order details
+    WITH details AS (
+        SELECT 
+            next_order_id AS order_id,
+            (d).product_id,
+            COALESCE((d).quantity, 1) AS quantity,
+            (d).unit_price
+        FROM unnest(p_order_details) AS d
+    )
+    INSERT INTO order_details (id, order_id, product_id, quantity, unit_price)
+    SELECT 
+        gen_random_uuid(),
+        order_id,
+        product_id,
+        quantity,
+        unit_price
+    FROM details;
+
+    COMMIT;
+END;
+$BODY$;
+
+ALTER PROCEDURE orders_insert(uuid, numeric, numeric, order_detail_type[], uuid) OWNER TO appuser;
+
+
+
+
+
+
 
 
 --DUMMY DATA

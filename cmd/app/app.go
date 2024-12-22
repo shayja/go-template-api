@@ -14,6 +14,7 @@ import (
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 
+	orderrepo "github.com/shayja/go-template-api/internal/adapters/repositories/order"
 	productrepo "github.com/shayja/go-template-api/internal/adapters/repositories/product"
 	userrepo "github.com/shayja/go-template-api/internal/adapters/repositories/user"
 	"github.com/shayja/go-template-api/internal/usecases"
@@ -69,6 +70,22 @@ func (app *App) Routes() {
 	protectedRoutes.PATCH(":id", productController.UpdatePrice)
 	protectedRoutes.POST("/image/:id", productController.UpdateImage)
 	protectedRoutes.DELETE(":id", productController.Delete)
+
+
+	// Register the Order module
+	orderRepo := &orderrepo.OrderRepository{Db: app.DB}
+	orderInteractor := usecases.OrderInteractor{OrderRepository: orderRepo}
+	orderController := controllers.OrderController{OrderInteractor: orderInteractor}
+
+	// Configure Order Routes
+	orderRoutes := router.Group(fmt.Sprintf("%s/order", baseUrl))
+	orderRoutes.Use(middleware.AuthRequired(utils.ValidateJWT))
+
+	// Set the order module routes.
+	orderRoutes.POST("", orderController.Create)
+	orderRoutes.GET("", orderController.GetAll)
+	orderRoutes.GET(":id", orderController.GetById)
+	orderRoutes.PUT(":id/status", orderController.UpdateStatus)
 
 
 

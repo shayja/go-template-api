@@ -10,6 +10,28 @@ definitions:
     - password
     - username
     type: object
+  entities.OrderDetailItem:
+    properties:
+      product_id:
+        type: string
+      quantity:
+        type: integer
+      unit_price:
+        type: number
+    type: object
+  entities.OrderRequest:
+    properties:
+      order_details:
+        items:
+          $ref: '#/definitions/entities.OrderDetailItem'
+        type: array
+      status:
+        type: integer
+      total_price:
+        type: number
+      user_id:
+        type: string
+    type: object
   entities.OtpRequest:
     properties:
       mobile:
@@ -252,6 +274,127 @@ paths:
       summary: Verify OTP
       tags:
       - Users
+  /order:
+    get:
+      description: Retrieve a paginated list of all orders
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: USer ID (uuid)
+        in: query
+        name: userid
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - apiKey: []
+      summary: Get all orders
+      tags:
+      - Orders
+    post:
+      description: Add a new order
+      parameters:
+      - description: Order data
+        in: body
+        name: order
+        required: true
+        schema:
+          $ref: '#/definitions/entities.OrderRequest'
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - apiKey: []
+      summary: Create a new order
+      tags:
+      - Orders
+  /order/{id}:
+    get:
+      description: Retrieve order details by order ID
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - apiKey: []
+      summary: Get an order by ID
+      tags:
+      - Orders
+  /order/{id}/status:
+    put:
+      description: Update the status of an order
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: New status
+        in: body
+        name: status
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - apiKey: []
+      summary: Update order status
+      tags:
+      - Orders
   /product:
     get:
       description: Retrieve a paginated list of all products
@@ -483,7 +626,8 @@ schemes:
 - https
 securityDefinitions:
   apiKey:
-    description: Type "Bearer" followed by a space and JWT token.
+    description: Type "Bearer" followed by a space and JWT token. Please add it in
+      the format "Bearer {AccessToken}" to authorize your requests.
     in: header
     name: Authorization
     type: apiKey
