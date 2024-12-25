@@ -14,7 +14,7 @@ import (
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 
-	orderrepo "github.com/shayja/go-template-api/internal/adapters/repositories/order"
+	repositories "github.com/shayja/go-template-api/internal/adapters/repositories/order"
 	productrepo "github.com/shayja/go-template-api/internal/adapters/repositories/product"
 	userrepo "github.com/shayja/go-template-api/internal/adapters/repositories/user"
 	"github.com/shayja/go-template-api/internal/usecases"
@@ -73,9 +73,9 @@ func (app *App) Routes() {
 
 
 	// Register the Order module
-	orderRepo := &orderrepo.OrderRepository{Db: app.DB}
-	orderInteractor := usecases.OrderInteractor{OrderRepository: orderRepo}
-	orderController := controllers.OrderController{OrderInteractor: orderInteractor}
+	orderRepo := &repositories.OrderRepository{Db: app.DB}
+	orderUsecase := &usecases.OrderUsecase{OrderRepo: orderRepo}
+	orderController := &controllers.OrderController{OrderUsecase: orderUsecase}
 
 	// Configure Order Routes
 	orderRoutes := router.Group(fmt.Sprintf("%s/order", baseUrl))
@@ -83,7 +83,7 @@ func (app *App) Routes() {
 
 	// Set the order module routes.
 	orderRoutes.POST("", orderController.Create)
-	orderRoutes.GET("", orderController.GetAll)
+	orderRoutes.GET("", orderController.GetOrders)
 	orderRoutes.GET(":id", orderController.GetById)
 	orderRoutes.PUT(":id/status", orderController.UpdateStatus)
 

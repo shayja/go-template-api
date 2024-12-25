@@ -10,26 +10,148 @@ definitions:
     - password
     - username
     type: object
-  entities.OrderDetailItem:
+  entities.Order:
     properties:
+      created_at:
+        description: |-
+          The date and time the order was created
+          example: 2024-07-01T12:00:00Z
+        example: "2024-07-01T12:00:00Z"
+        minLength: 20
+        type: string
+      id:
+        description: |-
+          The UUID of a product
+          example: 6204037c-30e6-408b-8aaa-dd8219860b4b
+        example: 6204037c-30e6-408b-8aaa-dd8219860b4b
+        minLength: 36
+        type: string
+      status:
+        description: |-
+          The status of the order (1=created/pending, 2=processing, 3=completed, 4=cancelled)
+          example: 2
+          required: true
+        example: 1
+        format: int32
+        minimum: 1
+        type: integer
+      total_price:
+        description: |-
+          The total price of the order
+          example: 100.00
+          required: true
+        example: 100
+        format: float64
+        type: number
+      updated_at:
+        description: |-
+          The date and time the order was last updated
+          example: 2025-01-01T12:00:00Z
+        type: string
+      user_id:
+        description: |-
+          The user that created the order
+          example: 451fa817-41f4-40cf-8dc2-c9f22aa98a4f
+          required: true
+        example: 451fa817-41f4-40cf-8dc2-c9f22aa98a4f
+        minLength: 36
+        type: string
+    type: object
+  entities.OrderDetail:
+    properties:
+      created_at:
+        description: |-
+          The date and time the order detail was created
+          example: 2025-01-01T12:00:00Z
+        type: string
+      id:
+        description: |-
+          The UUID of an order detail (line item)
+          example: 6204037c-30e6-408b-8aaa-dd8219860b4b
+        type: string
+      order_id:
+        description: |-
+          The UUID of the related order.
+          example: 451fa817-41f4-40cf-8dc2-c9f22aa98a4f
+          required: true
+        example: 451fa817-41f4-40cf-8dc2-c9f22aa98a4f
+        minLength: 36
+        type: string
       product_id:
+        description: |-
+          The UUID of the related product
+          example: 063d0ff7-e17e-4957-8d92-a988caeda8a1
+          required: true
+        example: 063d0ff7-e17e-4957-8d92-a988caeda8a1
+        minLength: 36
         type: string
       quantity:
+        description: |-
+          The quantity of the product
+          example: 2
+          required: true
+        example: 1
+        format: int32
+        minimum: 1
         type: integer
-      unit_price:
+      total_price:
+        description: |-
+          The date and time the order detail was created
+          example: 2024-07-01T12:00:00Z
+          required: true
+        example: 55
+        format: float64
         type: number
+      unit_price:
+        description: |-
+          The unit price of the product
+          example: 50.00
+          required: true
+        example: 50
+        format: float64
+        type: number
+      updated_at:
+        description: |-
+          The date and time the order detail was last updated
+          example: 2025-01-01T12:00:00Z
+        example: "2024-07-01T12:00:00Z"
+        minLength: 20
+        type: string
     type: object
   entities.OrderRequest:
     properties:
       order_details:
+        description: |-
+          Array of the order line items.
+          example: [{"product_id":"6204037c-30e6-408b-8aaa-dd8219860b4b","quantity":2,"unit_price":50.00}]
+          required: true
         items:
-          $ref: '#/definitions/entities.OrderDetailItem'
+          $ref: '#/definitions/entities.OrderDetail'
         type: array
       status:
+        description: |-
+          The status of the order (1=created/pending, 2=processing, 3=completed, 4=cancelled)
+          example: 1
+          required: true
+        example: 1
+        format: int32
+        minimum: 1
         type: integer
       total_price:
+        description: |-
+          The total price of the order
+          example: 100.00
+          required: true
+        example: 100
+        format: float64
         type: number
       user_id:
+        description: |-
+          The user that creates the order
+          example: 451fa817-41f4-40cf-8dc2-c9f22aa98a4f
+          required: true
+        example: 063d0ff7-e17e-4957-8d92-a988caeda8a1
+        minLength: 36
         type: string
     type: object
   entities.OtpRequest:
@@ -276,24 +398,27 @@ paths:
       - Users
   /order:
     get:
-      description: Retrieve a paginated list of all orders
+      description: Responds with the list of user orders as JSON.
       parameters:
       - description: Page number
         in: query
         name: page
         required: true
         type: integer
-      - description: USer ID (uuid)
+      - description: User ID (uuid)
         in: query
         name: userid
         required: true
         type: string
+      produces:
+      - application/json
       responses:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            items:
+              $ref: '#/definitions/entities.Order'
+            type: array
         "400":
           description: Bad Request
           schema:
@@ -306,7 +431,7 @@ paths:
             type: object
       security:
       - apiKey: []
-      summary: Get all orders
+      summary: Get orders (array) by the user ID
       tags:
       - Orders
     post:
@@ -318,6 +443,8 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/entities.OrderRequest'
+      produces:
+      - application/json
       responses:
         "201":
           description: Created
@@ -331,24 +458,25 @@ paths:
             type: object
       security:
       - apiKey: []
-      summary: Create a new order
+      summary: Create and store a new order in the database.
       tags:
       - Orders
   /order/{id}:
     get:
-      description: Retrieve order details by order ID
+      description: Responds with an entity of order as JSON.
       parameters:
       - description: Order ID
         in: path
         name: id
         required: true
         type: string
+      produces:
+      - application/json
       responses:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/entities.Order'
         "400":
           description: Bad Request
           schema:
@@ -361,7 +489,7 @@ paths:
             type: object
       security:
       - apiKey: []
-      summary: Get an order by ID
+      summary: Get an order by order ID
       tags:
       - Orders
   /order/{id}/status:

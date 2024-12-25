@@ -15,25 +15,21 @@ type OrderRepository struct {
 }
 
 const PAGE_SIZE = 20
-
-// Get all orders
-func (r *OrderRepository) GetAll(page int, user_id string) ([]*entities.Order, error) {
+// Get all user orders
+func (r *OrderRepository) GetAllOrders(page int, userId string) ([]*entities.Order, error) {
 	offset := PAGE_SIZE * (page - 1)
-	SQL := `SELECT * FROM get_user_orders($1, $2)`
-	query, err := r.Db.Query(SQL, offset, PAGE_SIZE)
-
+	query := `SELECT * FROM get_user_orders($1, $2, $3)`
+	rows, err := r.Db.Query(query, userId, offset, PAGE_SIZE)
 	if err != nil {
 		fmt.Print(err)
 		return nil, err
 	}
-	defer query.Close()
+	defer rows.Close()
 
 	var orders []*entities.Order
-	for query.Next() {
+	for rows.Next() {
 		order := &entities.Order{}
-		err := query.Scan(&order.Id, &order.UserId, &order.TotalPrice, &order.Status, &order.CreatedAt, &order.UpdatedAt)
-		if err != nil {
-			fmt.Print(err)
+		if err := rows.Scan(&order.Id, &order.UserId, &order.TotalPrice, &order.Status, &order.CreatedAt, &order.UpdatedAt); err != nil {
 			return nil, errors.ErrDatabase
 		}
 		orders = append(orders, order)
@@ -43,17 +39,17 @@ func (r *OrderRepository) GetAll(page int, user_id string) ([]*entities.Order, e
 
 // Get order by ID
 func (r *OrderRepository) GetById(id string) (*entities.Order, error) {
-	SQL := `SELECT * FROM get_order($1)`
-	query, err := r.Db.Query(SQL, id)
+	query := `SELECT * FROM get_order($1)`
+	rows, err := r.Db.Query(query, id)
 	if err != nil {
 		fmt.Print(err)
 		return nil, err
 	}
-	defer query.Close()
+	defer rows.Close()
 
 	order := &entities.Order{}
-	if query.Next() {
-		err := query.Scan(&order.Id, &order.UserId, &order.TotalPrice, &order.Status, &order.CreatedAt, &order.UpdatedAt)
+	if rows.Next() {
+		err := rows.Scan(&order.Id, &order.UserId, &order.TotalPrice, &order.Status, &order.CreatedAt, &order.UpdatedAt)
 		if err != nil {
 			fmt.Print(err)
 			return nil, errors.ErrDatabase

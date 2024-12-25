@@ -6,28 +6,28 @@ import (
 )
 
 type OrderRepository interface {
-	GetAll(page int, user_id string) ([]*entities.Order, error)
+	GetAllOrders(page int, userId string) ([]*entities.Order, error)
 	GetById(id string) (*entities.Order, error)
 	Create(orderRequest *entities.OrderRequest) (string, error)
 	UpdateStatus(id string, status int) (*entities.Order, error)
 }
 
-type OrderInteractor struct {
-	OrderRepository OrderRepository
+type OrderUsecase struct {
+	OrderRepo OrderRepository
 }
 
-func (uc *OrderInteractor) GetAll(page int, user_id string) ([]*entities.Order, error) {
-	return uc.OrderRepository.GetAll(page, user_id)
+func (uc *OrderUsecase) GetOrders(page int, userId string) ([]*entities.Order, error) {
+	return uc.OrderRepo.GetAllOrders(page, userId)
 }
 
-func (uc *OrderInteractor) GetById(id string) (*entities.Order, error) {
-	return uc.OrderRepository.GetById(id)
+func (uc *OrderUsecase) GetById(id string) (*entities.Order, error) {
+	return uc.OrderRepo.GetById(id)
 }
 
-func (uc *OrderInteractor) Create(orderRequest *entities.OrderRequest) (string, error) {
-	return uc.OrderRepository.Create(orderRequest)
+func (uc *OrderUsecase) Create(orderRequest *entities.OrderRequest) (string, error) {
+	return uc.OrderRepo.Create(orderRequest)
 }
 
-func (uc *OrderInteractor) UpdateStatus(id string, status int) (*entities.Order, error) {
-	return uc.OrderRepository.UpdateStatus(id, status)
+func (uc *OrderUsecase) UpdateStatus(id string, status int) (*entities.Order, error) {
+	return uc.OrderRepo.UpdateStatus(id, status)
 }

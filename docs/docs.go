@@ -282,11 +282,14 @@ const docTemplate = `{
                         "apiKey": []
                     }
                 ],
-                "description": "Retrieve a paginated list of all orders",
+                "description": "Responds with the list of user orders as JSON.",
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "Orders"
                 ],
-                "summary": "Get all orders",
+                "summary": "Get orders (array) by the user ID",
                 "parameters": [
                     {
                         "type": "integer",
@@ -297,7 +300,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "USer ID (uuid)",
+                        "description": "User ID (uuid)",
                         "name": "userid",
                         "in": "query",
                         "required": true
@@ -307,8 +310,10 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/entities.Order"
+                            }
                         }
                     },
                     "400": {
@@ -334,10 +339,13 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Add a new order",
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "Orders"
                 ],
-                "summary": "Create a new order",
+                "summary": "Create and store a new order in the database.",
                 "parameters": [
                     {
                         "description": "Order data",
@@ -374,11 +382,14 @@ const docTemplate = `{
                         "apiKey": []
                     }
                 ],
-                "description": "Retrieve order details by order ID",
+                "description": "Responds with an entity of order as JSON.",
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "Orders"
                 ],
-                "summary": "Get an order by ID",
+                "summary": "Get an order by order ID",
                 "parameters": [
                     {
                         "type": "string",
@@ -392,8 +403,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/entities.Order"
                         }
                     },
                     "400": {
@@ -824,17 +834,93 @@ const docTemplate = `{
                 }
             }
         },
-        "entities.OrderDetailItem": {
+        "entities.Order": {
             "type": "object",
             "properties": {
-                "product_id": {
+                "created_at": {
+                    "description": "The date and time the order was created\nexample: 2024-07-01T12:00:00Z",
+                    "type": "string",
+                    "minLength": 20,
+                    "example": "2024-07-01T12:00:00Z"
+                },
+                "id": {
+                    "description": "The UUID of a product\nexample: 6204037c-30e6-408b-8aaa-dd8219860b4b",
+                    "type": "string",
+                    "minLength": 36,
+                    "example": "6204037c-30e6-408b-8aaa-dd8219860b4b"
+                },
+                "status": {
+                    "description": "The status of the order (1=created/pending, 2=processing, 3=completed, 4=cancelled)\nexample: 2\nrequired: true",
+                    "type": "integer",
+                    "format": "int32",
+                    "minimum": 1,
+                    "example": 1
+                },
+                "total_price": {
+                    "description": "The total price of the order\nexample: 100.00\nrequired: true",
+                    "type": "number",
+                    "format": "float64",
+                    "example": 100
+                },
+                "updated_at": {
+                    "description": "The date and time the order was last updated\nexample: 2025-01-01T12:00:00Z",
                     "type": "string"
                 },
+                "user_id": {
+                    "description": "The user that created the order\nexample: 451fa817-41f4-40cf-8dc2-c9f22aa98a4f\nrequired: true",
+                    "type": "string",
+                    "minLength": 36,
+                    "example": "451fa817-41f4-40cf-8dc2-c9f22aa98a4f"
+                }
+            }
+        },
+        "entities.OrderDetail": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "description": "The date and time the order detail was created\nexample: 2025-01-01T12:00:00Z",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "The UUID of an order detail (line item)\nexample: 6204037c-30e6-408b-8aaa-dd8219860b4b",
+                    "type": "string"
+                },
+                "order_id": {
+                    "description": "The UUID of the related order.\nexample: 451fa817-41f4-40cf-8dc2-c9f22aa98a4f\nrequired: true",
+                    "type": "string",
+                    "minLength": 36,
+                    "example": "451fa817-41f4-40cf-8dc2-c9f22aa98a4f"
+                },
+                "product_id": {
+                    "description": "The UUID of the related product\nexample: 063d0ff7-e17e-4957-8d92-a988caeda8a1\nrequired: true",
+                    "type": "string",
+                    "minLength": 36,
+                    "example": "063d0ff7-e17e-4957-8d92-a988caeda8a1"
+                },
                 "quantity": {
-                    "type": "integer"
+                    "description": "The quantity of the product\nexample: 2\nrequired: true",
+                    "type": "integer",
+                    "format": "int32",
+                    "minimum": 1,
+                    "example": 1
+                },
+                "total_price": {
+                    "description": "The date and time the order detail was created\nexample: 2024-07-01T12:00:00Z\nrequired: true",
+                    "type": "number",
+                    "format": "float64",
+                    "example": 55
                 },
                 "unit_price": {
-                    "type": "number"
+                    "description": "The unit price of the product\nexample: 50.00\nrequired: true",
+                    "type": "number",
+                    "format": "float64",
+                    "example": 50
+                },
+                "updated_at": {
+                    "description": "The date and time the order detail was last updated\nexample: 2025-01-01T12:00:00Z",
+                    "type": "string",
+                    "minLength": 20,
+                    "example": "2024-07-01T12:00:00Z"
                 }
             }
         },
@@ -842,19 +928,30 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "order_details": {
+                    "description": "Array of the order line items.\nexample: [{\"product_id\":\"6204037c-30e6-408b-8aaa-dd8219860b4b\",\"quantity\":2,\"unit_price\":50.00}]\nrequired: true",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/entities.OrderDetailItem"
+                        "$ref": "#/definitions/entities.OrderDetail"
                     }
                 },
                 "status": {
-                    "type": "integer"
+                    "description": "The status of the order (1=created/pending, 2=processing, 3=completed, 4=cancelled)\nexample: 1\nrequired: true",
+                    "type": "integer",
+                    "format": "int32",
+                    "minimum": 1,
+                    "example": 1
                 },
                 "total_price": {
-                    "type": "number"
+                    "description": "The total price of the order\nexample: 100.00\nrequired: true",
+                    "type": "number",
+                    "format": "float64",
+                    "example": 100
                 },
                 "user_id": {
-                    "type": "string"
+                    "description": "The user that creates the order\nexample: 451fa817-41f4-40cf-8dc2-c9f22aa98a4f\nrequired: true",
+                    "type": "string",
+                    "minLength": 36,
+                    "example": "063d0ff7-e17e-4957-8d92-a988caeda8a1"
                 }
             }
         },
