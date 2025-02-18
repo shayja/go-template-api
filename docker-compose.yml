@@ -13,7 +13,7 @@ services:
       - fullstack
 
   fullstack-postgres:
-    image: postgres:latest
+    image: ankane/pgvector:latest
     container_name: full_db_postgres
     environment:
       - POSTGRES_USER=${DB_USER}
@@ -30,7 +30,7 @@ services:
       - fullstack
 
   pgadmin:
-    image: dpage/pgadmin4
+    image: dpage/pgadmin4:latest
     container_name: pgadmin_container
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
